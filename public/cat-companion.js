@@ -18,7 +18,11 @@ export function createCatCompanion({ element, garden, door, enter }) {
     targetX = x,
     targetY = y;
   let facing = 1,
-    runTime = 0,
+    stride = 0,
+    velocityX = 0,
+    velocityY = 0,
+    lift = 0,
+    tilt = 0,
     drag = null,
     lastFrame = -1,
     lastFacing = 0;
@@ -69,27 +73,82 @@ export function createCatCompanion({ element, garden, door, enter }) {
     const dx = targetX - x,
       dy = targetY - y,
       distance = Math.hypot(dx, dy);
-    const moving = distance > 0.5;
-    if (Math.abs(dx) > 1 && !drag) facing = dx < 0 ? -1 : 1;
-    const ease = reduced.matches ? 1 : 1 - Math.exp(-dt / (drag ? 45 : 90));
-    x += dx * ease;
-    y += dy * ease;
-    if (!moving) {
+    let travel = 0;
+    const seconds = dt / 1000;
+    if (reduced.matches) {
       x = targetX;
       y = targetY;
+      velocityX = velocityY = 0;
+    } else if (drag) {
+      const ease = 1 - Math.exp(-dt / 45);
+      x += dx * ease;
+      y += dy * ease;
+      velocityX = velocityY = 0;
+    } else if (distance > 0.5 || Math.hypot(velocityX, velocityY) > 8) {
+      // Bounded acceleration, then braking near the destination. Distant
+      // mouse jumps no longer turn into an instantaneous slide across the map.
+      const speed = Math.min(360, distance * 5);
+      const desiredX = distance ? (dx / distance) * speed : 0;
+      const desiredY = distance ? (dy / distance) * speed : 0;
+      const changeX = desiredX - velocityX,
+        changeY = desiredY - velocityY;
+      const change = Math.hypot(changeX, changeY);
+      const acceleration = Math.min(1, (1800 * seconds) / (change || 1));
+      velocityX += changeX * acceleration;
+      velocityY += changeY * acceleration;
+      const stepX = velocityX * seconds,
+        stepY = velocityY * seconds;
+      if (distance < 2 || stepX * dx + stepY * dy >= distance * distance) {
+        travel = distance;
+        x = targetX;
+        y = targetY;
+        velocityX = velocityY = 0;
+      } else {
+        x += stepX;
+        y += stepY;
+        travel = Math.hypot(stepX, stepY);
+      }
+      if (Math.abs(velocityX) > 35) facing = velocityX < 0 ? -1 : 1;
+    } else {
+      x = targetX;
+      y = targetY;
+      velocityX = velocityY = 0;
     }
-    const running = moving && !drag && !reduced.matches;
-    if (running) runTime += dt;
-    else runTime = 0;
-    const frame = drag ? 7 : running ? Math.floor(runTime / 85) % 6 : 6;
+    const speed = Math.hypot(velocityX, velocityY);
+    const running = !drag && !reduced.matches && speed > 12;
+    // Paws advance with ground covered rather than with a fixed clock.
+    if (running) stride += travel / 21;
+    else stride = 0;
+    const frame = drag ? 7 : running ? Math.floor(stride) % 6 : 6;
     draw(frame);
     element.dataset.state = drag ? "dragging" : running ? "running" : "idle";
     element.style.transform = `translate3d(${x - 40}px,${y - 70}px,0)`;
-    canvas.style.transform =
-      drag && !reduced.matches
-        ? `rotate(${clamp(dx * 0.3, -15, 15)}deg) translateY(-8px)`
-        : "none";
-    if (moving && !reduced.matches) frameRequest = requestAnimationFrame(paint);
+    const targetLift = reduced.matches
+      ? 0
+      : drag
+        ? -8
+        : running
+          ? -Math.abs(Math.sin((stride / 3) * Math.PI)) * 1.5
+          : 0;
+    const targetTilt = reduced.matches
+      ? 0
+      : drag
+        ? clamp(dx * 0.3, -15, 15)
+        : running
+          ? clamp(velocityX / 120, -3, 3)
+          : 0;
+    const settle = reduced.matches ? 1 : 1 - Math.exp(-dt / 65);
+    lift += (targetLift - lift) * settle;
+    tilt += (targetTilt - tilt) * settle;
+    canvas.style.transform = `translateY(${lift}px) rotate(${tilt}deg)`;
+    const unsettled =
+      Math.abs(targetLift - lift) > 0.05 || Math.abs(targetTilt - tilt) > 0.05;
+    if (
+      !reduced.matches &&
+      (Math.hypot(targetX - x, targetY - y) > 0.5 || speed > 8 || unsettled)
+    )
+      frameRequest = requestAnimationFrame(paint);
+    else lastTime = 0;
   }
   function wake() {
     if (!frameRequest && !suspended && loaded)
@@ -133,6 +192,7 @@ export function createCatCompanion({ element, garden, door, enter }) {
       return;
     const id = drag.id;
     drag = null;
+    velocityX = velocityY = 0;
     if (element.hasPointerCapture(id)) element.releasePointerCapture(id);
     element.classList.remove("is-dragging");
     door.classList.remove("drop-ready");
@@ -150,6 +210,7 @@ export function createCatCompanion({ element, garden, door, enter }) {
     };
     targetX = x;
     targetY = y;
+    velocityX = velocityY = 0;
     element.setPointerCapture(event.pointerId);
     element.classList.add("is-dragging");
     hideMarker();
@@ -193,6 +254,7 @@ export function createCatCompanion({ element, garden, door, enter }) {
       if (isCat) {
         targetX = x;
         targetY = y;
+        velocityX = velocityY = 0;
         wake();
       }
       return;
@@ -200,8 +262,15 @@ export function createCatCompanion({ element, garden, door, enter }) {
     marker.hidden = false;
     marker.style.transform = `translate3d(${event.clientX}px,${event.clientY}px,0)`;
     garden.classList.add("cat-active");
-    targetX = event.clientX - 55;
-    targetY = event.clientY + 32;
+    const nextX = event.clientX - 55,
+      nextY = event.clientY + 32;
+    if (
+      Math.hypot(nextX - x, nextY - y) < 14 &&
+      Math.hypot(velocityX, velocityY) < 12
+    )
+      return;
+    targetX = nextX;
+    targetY = nextY;
     limit();
     wake();
   });
@@ -210,6 +279,7 @@ export function createCatCompanion({ element, garden, door, enter }) {
       hideMarker();
       targetX = x;
       targetY = y;
+      velocityX = velocityY = 0;
       wake();
     }
   });
@@ -220,6 +290,7 @@ export function createCatCompanion({ element, garden, door, enter }) {
       cancelAnimationFrame(frameRequest);
       frameRequest = 0;
       lastTime = 0;
+      velocityX = velocityY = 0;
       hideMarker();
       draw(6);
       element.dataset.state = "idle";
@@ -240,12 +311,14 @@ export function createCatCompanion({ element, garden, door, enter }) {
     hideMarker();
     targetX = x;
     targetY = y;
+    velocityX = velocityY = 0;
     wake();
   });
   window.addEventListener("resize", () => {
     limit();
     x = targetX;
     y = targetY;
+    velocityX = velocityY = 0;
     wake();
   });
   function inputHint() {

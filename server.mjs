@@ -49,6 +49,7 @@ export function createApp(options = {}) {
     "/app.js": "text/javascript; charset=utf-8",
     "/world.js": "text/javascript; charset=utf-8",
     "/cat-companion.js": "text/javascript; charset=utf-8",
+    "/intro-flight.js": "text/javascript; charset=utf-8",
     "/style.css": "text/css; charset=utf-8",
     "/favicon.svg": "image/svg+xml",
     "/assets/garden.webp": "image/webp",

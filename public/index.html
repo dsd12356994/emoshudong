@@ -63,13 +63,18 @@
           <div>春日 · 晴<small>适合慢慢来的一天</small></div>
         </div>
       </header>
-      <section class="garden-caption">
-        <span class="overline">有些话，风会替你保管。</span>
-        <h1>在这里，<br />心事可以慢慢说。</h1>
-        <p>点一下桃树里的洞口，就能写信。</p>
-        <span class="cat-guide">移动鼠标，小猫会跟上来 · 按住它试试</span>
-        <span class="private-note">AI 陪伴 · 对话不在本站保存</span>
+      <section class="garden-caption" id="intro-card">
+        <div class="caption-copy">
+          <span class="overline">有些话，风会替你保管。</span>
+          <h1>在这里，<br />心事可以慢慢说。</h1>
+          <p>点一下桃树里的洞口，就能写信。</p>
+          <span class="cat-guide">移动鼠标，小猫会跟上来 · 按住它试试</span>
+          <span class="private-note">AI 陪伴 · 对话不在本站保存</span>
+        </div>
       </section>
+      <div class="intro-paper" id="intro-paper" aria-hidden="true" hidden>
+        <i></i><i></i><i></i><i></i>
+      </div>
       <footer class="garden-footer">
         <span class="garden-location"
           ><span aria-hidden="true">⌖</span> 桃花源 · 你的心事歇脚处</span
@@ -86,6 +91,12 @@
           ><button id="library-open">
             <span aria-hidden="true">▤</span> 资料架</button
           ><button id="motion-toggle" aria-pressed="true">花瓣 · 飘落</button
+          ><button
+            id="intro-replay"
+            aria-label="重新查看小院提示纸条"
+            title="再看一次小纸条"
+          >
+            纸条</button
           ><button id="privacy-open" aria-label="隐私与使用说明">隐私</button>
         </nav>
       </footer>

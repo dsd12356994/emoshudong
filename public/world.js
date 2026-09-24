@@ -1,4 +1,5 @@
 import { createCatCompanion } from "/cat-companion.js";
+import { createIntroFlight } from "/intro-flight.js";
 const $ = (id) => document.getElementById(id);
 const reduced = matchMedia("(prefers-reduced-motion: reduce)");
 let entering = false;
@@ -123,6 +124,12 @@ try {
   firstVisit = !localStorage.getItem("huisheng-garden");
 } catch {}
 if (firstVisit) $("cat-dialog").showModal();
+createIntroFlight({
+  card: $("intro-card"),
+  paper: $("intro-paper"),
+  door: $("tree-door"),
+  replay: $("intro-replay"),
+});
 document
   .querySelectorAll("[data-enter]")
   .forEach((button) => (button.onclick = enterTree));
