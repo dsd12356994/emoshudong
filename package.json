@@ -1,0 +1,21 @@
+{
+  "name": "huisheng-treehole",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "dev": "node --watch start-local.mjs",
+    "start": "node server.mjs",
+    "test": "node --test test/*.test.mjs",
+    "check": "node --check server.mjs && node --check start-local.mjs && node --check public/app.js"
+  },
+  "dependencies": {
+    "lunar-javascript": "1.7.7"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.63.0"
+  }
+}

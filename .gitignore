@@ -1,0 +1,12 @@
+node_modules/
+.env
+.env.*
+!.env.example
+data/
+*.log
+test-results/
+__pycache__/
+*.pyc
+deploy.json
+*.pem
+*.key

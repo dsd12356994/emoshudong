@@ -1,0 +1,5 @@
+{
+  "host": "deploy@your-server.example",
+  "identityFile": "C:/Users/YOUR_USER/.ssh/deploy_ed25519",
+  "knownHostsFile": "C:/Users/YOUR_USER/.ssh/deploy_known_hosts"
+}

@@ -1,0 +1,26 @@
+[Unit]
+Description=Huisheng private treehole
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=shudong
+Group=shudong
+WorkingDirectory=/opt/shudong/app
+EnvironmentFile=/etc/shudong.env
+Environment=NODE_ENV=production
+ExecStart=/opt/shudong/node/bin/node /opt/shudong/app/server.mjs
+Restart=on-failure
+RestartSec=5
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectHome=true
+ProtectSystem=strict
+ReadWritePaths=/opt/shudong/app/data
+UMask=0077
+MemoryMax=350M
+TasksMax=64
+
+[Install]
+WantedBy=multi-user.target
