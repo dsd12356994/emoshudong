@@ -108,7 +108,7 @@ export function createCatCompanion({ element, garden, door, enter }) {
         y += stepY;
         travel = Math.hypot(stepX, stepY);
       }
-      if (Math.abs(velocityX) > 35) facing = velocityX < 0 ? -1 : 1;
+      if (Math.abs(velocityX) > 2) facing = velocityX < 0 ? -1 : 1;
     } else {
       x = targetX;
       y = targetY;
@@ -249,19 +249,18 @@ export function createCatCompanion({ element, garden, door, enter }) {
     if (suspended || drag || !loaded) return;
     const isCat = element.contains(event.target);
     const isControl = event.target.closest("header,footer,.garden-caption");
-    if (event.pointerType !== "mouse" || !fine.matches || isCat || isControl) {
+    if (event.pointerType !== "mouse" || !fine.matches || isControl) {
       hideMarker();
-      if (isCat) {
-        targetX = x;
-        targetY = y;
-        velocityX = velocityY = 0;
-        wake();
-      }
       return;
     }
-    marker.hidden = false;
-    marker.style.transform = `translate3d(${event.clientX}px,${event.clientY}px,0)`;
-    garden.classList.add("cat-active");
+    // Moving left can put the pointer over the trailing cat. Keep following
+    // through that hit area; only pointerdown should grab and stop the cat.
+    if (isCat) hideMarker();
+    else {
+      marker.hidden = false;
+      marker.style.transform = `translate3d(${event.clientX}px,${event.clientY}px,0)`;
+      garden.classList.add("cat-active");
+    }
     const nextX = event.clientX - 55,
       nextY = event.clientY + 32;
     if (

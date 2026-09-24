@@ -31,7 +31,87 @@ async function grab(page, cat) {
   await page.mouse.down();
   await expect(cat).toHaveAttribute("data-state", "dragging");
 }
+async function checkSlowFollowing() {
+  const { page, context, cat } = await setup({
+    viewport: { width: 1440, height: 1000 },
+  });
+  try {
+    await page.clock.install();
+    await page.clock.pauseAt(new Date(Date.now() + 1000));
+    for (const speed of [120, 30]) {
+      const directions = [];
+      for (const direction of [1, -1]) {
+        const start = direction === 1 ? 650 : 1000;
+        await page.mouse.move(start, 450);
+        await page.clock.runFor(2500);
+        const samples = [];
+        for (let i = 1; i <= 120; i++) {
+          // Real pointer events preserve hit testing against the moving cat.
+          await page.mouse.move(start + direction * speed * i * 0.016, 450);
+          await page.clock.runFor(16);
+          if (i > 30) {
+            samples.push(
+              await cat.evaluate((el) => ({
+                x: el.getBoundingClientRect().x,
+                state: el.dataset.state,
+                frame: el.dataset.frame,
+              })),
+            );
+          }
+        }
+        assert.ok(
+          samples.every((s) => s.state === "running"),
+          `${speed}px/s in direction ${direction}: continuous movement must not brake on hover`,
+        );
+        assert.ok(
+          samples
+            .slice(1)
+            .every((s, i) => (s.x - samples[i].x) * direction > 0),
+          "slow following should advance every frame in either direction",
+        );
+        assert.ok(
+          new Set(samples.map((s) => s.frame)).size >= 3,
+          "paws should keep stepping",
+        );
+        directions.push({
+          travel: Math.abs(samples.at(-1).x - samples[0].x),
+          // Compare the actual rendered sprite to its horizontal reflection.
+          sprite: await cat.evaluate((el) =>
+            Array.from(
+              el
+                .querySelector("canvas")
+                .getContext("2d")
+                .getImageData(0, 0, 128, 128).data,
+            ),
+          ),
+        });
+      }
+      assert.ok(
+        Math.abs(directions[0].travel - directions[1].travel) < 1,
+        "left and right should follow equally smoothly",
+      );
+      const right = directions[0].sprite,
+        left = directions[1].sprite;
+      let mirroredDifference = 0;
+      for (let y = 0; y < 128; y++)
+        for (let x = 0; x < 128; x++)
+          for (let channel = 0; channel < 4; channel++)
+            mirroredDifference += Math.abs(
+              left[(y * 128 + x) * 4 + channel] -
+                right[(y * 128 + 127 - x) * 4 + channel],
+            );
+      // Canvas color rounding can differ by a channel value after reflection.
+      assert.ok(
+        mirroredDifference / left.length < 1,
+        "the cat should face its travel direction even at slow speed",
+      );
+    }
+  } finally {
+    await context.close();
+  }
+}
 try {
+  await checkSlowFollowing();
   const { page, context, cat } = await setup({
     viewport: { width: 1440, height: 1000 },
   });
@@ -110,7 +190,7 @@ try {
   await mobile.context.close();
   assert.deepEqual(errors, []);
   console.log(
-    "Garden checks passed: running frames, idle, mouse drag, drop into hollow, keyboard entry, reduced motion, touch drag/cancel and tap entry.",
+    "Garden checks passed: symmetric slow following and facing, running frames, idle, mouse drag, drop into hollow, keyboard entry, reduced motion, touch drag/cancel and tap entry.",
   );
 } finally {
   await browser.close();
