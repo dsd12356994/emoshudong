@@ -862,25 +862,45 @@ textarea:focus-visible {
   min-width: 110px;
   margin-left: auto;
 }
-.consent {
-  display: flex;
-  align-items: flex-start;
-  gap: 6px;
+.chat-data-link {
+  display: inline-block;
   margin-top: 10px;
-  font-size: 9px;
-  line-height: 1.8;
-  color: #968975;
-}
-.consent input {
-  margin: 2px 0 0;
-  flex-shrink: 0;
-}
-.consent button {
   padding: 0;
-  background: none;
-  font-size: 9px;
+  background: transparent;
+  font-size: 11px;
+  line-height: 1.8;
   text-decoration: underline;
+  text-underline-offset: 3px;
   color: #8e5d68;
+}
+.chat-consent-dialog {
+  width: min(560px, calc(100vw - 32px));
+}
+.chat-consent-dialog .overline {
+  display: block;
+  margin-bottom: 7px;
+}
+.chat-consent-notes {
+  border-block: 1px solid #dfd1bb;
+  margin-top: 18px;
+  padding: 5px 0 16px;
+}
+.chat-consent-notes p {
+  margin-top: 13px;
+}
+.chat-consent-notes strong {
+  display: block;
+  font-weight: 500;
+  color: #705b49;
+}
+.chat-consent-dialog .dialog-actions {
+  flex-wrap: wrap;
+  margin-top: 20px;
+}
+.chat-consent-dialog .chat-consent-footnote {
+  font-size: 11px;
+  margin-top: 13px;
+  color: #968975;
 }
 .birth-summary {
   font-size: 10px;
@@ -1405,10 +1425,14 @@ textarea:focus-visible {
     padding: 9px 13px;
     font-size: 11px;
   }
-  .consent {
-    font-size: 9px;
-    line-height: 1.6;
-    margin-top: 8px;
+  .chat-consent-dialog h2 {
+    font-size: 23px;
+  }
+  .chat-consent-dialog .dialog-actions {
+    flex-direction: column-reverse;
+  }
+  .chat-consent-dialog .dialog-actions button {
+    width: 100%;
   }
   .status {
     font-size: 9px;

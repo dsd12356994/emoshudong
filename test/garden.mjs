@@ -141,6 +141,9 @@ try {
   });
   await expect(page.locator("#tree-door")).toHaveClass(/drop-ready/);
   await page.mouse.up();
+  await expect(page.locator("#chat-consent-dialog")).toBeVisible();
+  await expect(page.locator("#letter-dialog")).toBeHidden();
+  await page.locator("#chat-consent-accept").click();
   await expect(page.locator("#letter-dialog")).toBeVisible();
   await expect(cat).toBeHidden();
   await page.locator('[data-close="letter-dialog"]').click();
@@ -188,6 +191,8 @@ try {
     mobileDoor.x + mobileDoor.width / 2,
     mobileDoor.y + mobileDoor.height / 2,
   );
+  await expect(mobile.page.locator("#chat-consent-dialog")).toBeVisible();
+  await mobile.page.locator("#chat-consent-accept").tap();
   await expect(mobile.page.locator("#letter-dialog")).toBeVisible();
   await mobile.context.close();
   assert.deepEqual(errors, []);

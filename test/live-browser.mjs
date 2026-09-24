@@ -14,6 +14,7 @@ try {
   await dismissArrival(page);
   await page.locator("#cat-form button[type=submit]").click();
   await page.locator("#tree-door").click();
+  await page.locator("#chat-consent-accept").click();
   await page
     .getByText("对话只暂存在当前页面，刷新或关闭会清除。", { exact: true })
     .waitFor();
@@ -28,7 +29,7 @@ try {
     .fill(
       "我在练习如何表达自己的感受。请先用工具查阅资料架中关于关系沟通的卡片，再读取 communication 沟通练习，给我一个简短的练习。",
     );
-  await page.locator("#consent").check();
+  await page.locator('input[name="mode"][value="advice"]').check();
   const responsePromise = page.waitForResponse(
     (r) => r.url().endsWith("/api/chat"),
     { timeout: 95000 },

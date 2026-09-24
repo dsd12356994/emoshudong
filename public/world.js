@@ -3,18 +3,20 @@ import { createIntroFlight } from "/intro-flight.js";
 import { createCottage } from "/cottage.js";
 import { createCommunityBoard } from "/community.js";
 import { createArrival } from "/arrival.js";
+import { openLetter } from "/app.js";
 const $ = (id) => document.getElementById(id);
 const reduced = matchMedia("(prefers-reduced-motion: reduce)");
 const cottage = createCottage();
 const community = createCommunityBoard();
 let entering = false;
 function enterTree() {
-  if (entering || $("letter-dialog").open) return;
+  if (entering || $("letter-dialog").open || $("chat-consent-dialog").open)
+    return;
   entering = true;
   document.body.classList.add("entering-tree");
   setTimeout(
     () => {
-      $("letter-dialog").showModal();
+      openLetter();
       document.body.classList.remove("entering-tree");
       entering = false;
     },

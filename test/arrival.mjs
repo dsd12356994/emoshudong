@@ -50,7 +50,10 @@ try {
     await notice(page);
     await page.clock.runFor(150);
     await expect(page.locator("#announcement-dialog")).toBeHidden();
-    assert.equal(await page.locator("#consent").isChecked(), false);
+    await page.locator("#tree-door").click();
+    await page.clock.runFor(300);
+    await expect(page.locator("#chat-consent-dialog")).toBeVisible();
+    await expect(page.locator("#letter-dialog")).toBeHidden();
     await page.close();
   }
   const paused = await setup();
@@ -114,7 +117,11 @@ try {
   await member.locator("#account-password").fill("arrival-test-password");
   await member.locator("#account-submit").click();
   await notice(member);
-  assert.equal(await member.locator("#consent").isChecked(), false);
+  await member.locator("#announcement-close").click();
+  await member.locator("#tree-door").click();
+  await member.clock.runFor(300);
+  await expect(member.locator("#chat-consent-dialog")).toBeVisible();
+  await expect(member.locator("#letter-dialog")).toBeHidden();
   await member.reload();
   await expect(member.locator("#account-returning")).toBeVisible();
   await member.route("**/api/account/logout", (route) => route.abort());

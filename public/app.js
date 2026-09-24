@@ -3,12 +3,14 @@ let history = [],
   birth = null,
   ready = false,
   busy = false,
+  chatConsent = false,
   controller = null;
 const dialogs = [
   "birth-dialog",
   "privacy-dialog",
   "clear-dialog",
   "letter-dialog",
+  "chat-consent-dialog",
   "cat-dialog",
   "library-dialog",
   "cottage-dialog",
@@ -27,16 +29,33 @@ function status(text, error = false) {
   $("status").classList.toggle("ready", !error);
 }
 function controls() {
-  $("message").readOnly = busy;
+  $("message").readOnly = busy || !chatConsent;
   $("counter").textContent = `${$("message").value.length} / 2000`;
   $("send").disabled =
-    !ready ||
-    (!$("message").value.trim() && !busy) ||
-    (!$("consent").checked && !busy);
+    !ready || (!$("message").value.trim() && !busy) || (!chatConsent && !busy);
   $("send").textContent = busy ? "停止等待" : "寄出这封信 ↗";
   $("birth-open").disabled = busy;
   $("new-chat").disabled = busy;
 }
+// All entry paths share the same explicit, page-local acknowledgement. Merely
+// closing this notice (or the arrival announcement) never grants permission.
+export function openLetter() {
+  if (!chatConsent) {
+    if (!$("chat-consent-dialog").open) $("chat-consent-dialog").showModal();
+    return;
+  }
+  if (!$("letter-dialog").open) $("letter-dialog").showModal();
+  $("message").focus();
+}
+$("chat-consent-accept").onclick = () => {
+  chatConsent = true;
+  $("chat-consent-dialog").close();
+  controls();
+  openLetter();
+};
+$("chat-consent-dialog").addEventListener("close", () => {
+  if (!chatConsent) $("tree-door").focus({ preventScroll: true });
+});
 function scrollToEnd() {
   const c = $("conversation");
   c.scrollTop = c.scrollHeight;
@@ -71,7 +90,11 @@ async function sendMessage() {
     return;
   }
   const text = $("message").value.trim();
-  if (!text || !ready || !$("consent").checked) return;
+  if (!chatConsent) {
+    openLetter();
+    return;
+  }
+  if (!text || !ready) return;
   const messages = [...history.slice(-20), { role: "user", content: text }];
   if (messages.reduce((n, m) => n + m.content.length, 0) > 20000) {
     status("这段对话已经很长了，请开启新对话再聊。", true);
@@ -162,7 +185,6 @@ $("message").addEventListener("keydown", (e) => {
     if (!$("send").disabled) sendMessage();
   }
 });
-$("consent").addEventListener("change", controls);
 document.querySelectorAll("[data-prompt]").forEach((button) =>
   button.addEventListener("click", () => {
     $("message").value = button.dataset.prompt;
@@ -170,7 +192,7 @@ document.querySelectorAll("[data-prompt]").forEach((button) =>
     $("message").focus();
   }),
 );
-for (const id of ["privacy-open", "consent-detail"])
+for (const id of ["privacy-open", "consent-detail", "chat-consent-detail"])
   $(id).onclick = () => $("privacy-dialog").showModal();
 document
   .querySelectorAll("[data-close]")
@@ -310,8 +332,7 @@ if (document.modelContext?.registerTool) {
             throw new Error("无效草稿或正在回复。");
           $("message").value = input.text;
           controls();
-          if (!$("letter-dialog").open) $("letter-dialog").showModal();
-          $("message").focus();
+          openLetter();
           return { staged: true, sent: false };
         },
       }),

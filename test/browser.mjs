@@ -58,14 +58,17 @@ try {
     "paused",
   );
   await page.locator("#tree-door").click();
+  await page.locator("#chat-consent-dialog").waitFor();
+  assert.equal(await page.locator("#letter-dialog").isVisible(), false);
+  await page.locator("#chat-consent-accept").click();
   await page.locator("#letter-dialog").waitFor();
   await page.screenshot({
     path: fileURLToPath(new URL("letter-desktop.png", dir)),
   });
+  assert.equal(await page.locator("#send").isDisabled(), true);
   await page.locator("[data-prompt]").first().click();
   assert.ok(await page.locator("#message").inputValue());
-  assert.equal(await page.locator("#send").isDisabled(), true);
-  await page.locator("#consent").check();
+  assert.equal(await page.locator("#send").isDisabled(), false);
   await page.locator("#send").click();
   await page
     .getByText("这件事让你很难过。我们可以先慢慢说，不急着决定。")

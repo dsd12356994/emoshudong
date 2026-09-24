@@ -14,7 +14,7 @@
     <link rel="stylesheet" href="/style.css" />
     <link rel="stylesheet" href="/cottage.css" />
     <link rel="stylesheet" href="/arrival.css" />
-    <script src="/app.js" defer></script>
+    <script type="module" src="/app.js"></script>
     <script type="module" src="/world.js"></script>
   </head>
   <body>
@@ -489,7 +489,7 @@
           </section>
         </div>
         <p class="announcement-consent">
-          公告关闭不代表同意发送数据；写信前仍需主动勾选 DeepSeek 处理说明。
+          公告关闭不代表同意发送数据；第一次进入树洞时，会单独弹出写信说明，由你确认后再开始。
         </p>
       </div>
       <footer class="announcement-footer">
@@ -498,6 +498,61 @@
         ><button id="announcement-privacy">完整隐私说明 ↗</button
         ><button id="announcement-guide">使用指南 ↗</button>
       </footer>
+    </dialog>
+    <dialog
+      id="chat-consent-dialog"
+      class="chat-consent-dialog"
+      aria-labelledby="chat-consent-title"
+      aria-describedby="chat-consent-intro"
+    >
+      <div class="dialog-heading">
+        <div>
+          <span class="overline">在信纸展开之前</span>
+          <h2 id="chat-consent-title" tabindex="-1" autofocus>
+            先说清楚，再慢慢写
+          </h2>
+        </div>
+        <button
+          data-close="chat-consent-dialog"
+          aria-label="暂不写信，回到小院"
+        >
+          ×
+        </button>
+      </div>
+      <p id="chat-consent-intro">
+        这里的回信来自 AI。开始之前，请了解这封信会如何被处理。
+      </p>
+      <div class="chat-consent-notes">
+        <p>
+          <strong>谁会读到寄出的信？</strong
+          >点击寄出后，来信、最近的对话和你自愿开启的生辰参考，会经本站交给
+          DeepSeek 处理，适用其数据政策。
+        </p>
+        <p>
+          <strong>聊天留在哪里？</strong
+          >本站不持久保存聊天正文和生日。页面中的聊天在刷新、关闭页面或另起新对话后清除；这不会撤回已交给
+          DeepSeek 的内容。
+        </p>
+        <p>
+          <strong>留一点隐私给自己。</strong
+          >请避免填写真实姓名、联系方式或他人的私密信息。AI
+          可能理解有误，也不能替代专业支持。
+        </p>
+      </div>
+      <button id="chat-consent-detail" class="chat-data-link" type="button">
+        查看完整隐私与使用说明 ↗
+      </button>
+      <div class="dialog-actions">
+        <button class="secondary" data-close="chat-consent-dialog">
+          先回小院
+        </button>
+        <button class="primary" id="chat-consent-accept">
+          我了解并同意，开始写信
+        </button>
+      </div>
+      <p class="chat-consent-footnote">
+        确认只对当前页面有效；关闭提示不会代替你同意，也不会寄出任何内容。
+      </p>
     </dialog>
     <dialog
       id="letter-dialog"
@@ -593,16 +648,9 @@
                 ><button type="submit" id="send" disabled>寄出这封信 ↗</button>
               </div>
             </form>
-            <label class="consent"
-              ><input id="consent" type="checkbox" /><span
-                >我了解，寄出的对话及所选生辰参考会交给 DeepSeek 处理。<button
-                  id="consent-detail"
-                  type="button"
-                >
-                  详情
-                </button></span
-              ></label
-            >
+            <button id="consent-detail" class="chat-data-link" type="button">
+              隐私与使用说明 ↗
+            </button>
           </section>
         </section>
       </div>

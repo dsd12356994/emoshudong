@@ -28,7 +28,7 @@ try {
     ["#cottage-door", "#cottage-dialog"],
     ["#cottage-door .place-label", "#cottage-dialog"],
     ["#board-open", "#board-dialog"],
-    ["#tree-door", "#letter-dialog"],
+    ["#tree-door", "#chat-consent-dialog"],
   ]) {
     const r = await page.locator(target).boundingBox();
     const x = r.x + r.width / 2,
