@@ -101,6 +101,20 @@ input[type="radio"] {
   object-fit: fill;
   image-rendering: auto;
 }
+/* Entrances share the artwork's coordinates, but sit above the companion.
+   Empty parts of this layer remain transparent to mouse and touch input. */
+.scene-entrances {
+  z-index: 6;
+  pointer-events: none;
+}
+.scene-entrances > button {
+  pointer-events: auto;
+}
+.garden-header,
+.garden-footer,
+.garden-caption {
+  z-index: 8;
+}
 .vignette {
   position: absolute;
   inset: 0;

@@ -74,6 +74,7 @@ npm.cmd test
 $env:TEST_URL = 'http://127.0.0.1:3180'
 node test/browser.mjs
 node test/garden.mjs
+node test/entrances.mjs
 node test/intro.mjs
 # 独立临时实例，不调用模型，也不污染自己的账号或留言
 node test/cottage.mjs
