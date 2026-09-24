@@ -68,6 +68,15 @@ export function createApp(options = {}) {
     "/arrival.css": "text/css; charset=utf-8",
     "/model-settings.js": "text/javascript; charset=utf-8",
     "/model-settings.css": "text/css; charset=utf-8",
+    "/garden-audio.js": "text/javascript; charset=utf-8",
+    "/garden-audio.css": "text/css; charset=utf-8",
+    "/assets/audio/forget-me-not.mp3": "audio/mpeg",
+    "/assets/audio/a-simple-trifle.mp3": "audio/mpeg",
+    ...Object.fromEntries(
+      ["tap", "paper", "open", "close", "send", "success", "pet", "feed"].map(
+        (name) => [`/assets/audio/${name}.wav`, "audio/wav"],
+      ),
+    ),
     "/cottage.css": "text/css; charset=utf-8",
     "/assets/room.webp": "image/webp",
     "/assets/cat-rest.webp": "image/webp",

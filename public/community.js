@@ -1,3 +1,4 @@
+import { playSound } from "/garden-audio.js";
 export function createCommunityBoard() {
   const $ = (id) => document.getElementById(id);
   const account = $("account-dialog");
@@ -154,6 +155,7 @@ export function createCommunityBoard() {
   }
   function open() {
     $("board-dialog").showModal();
+    playSound("paper");
     load();
   }
   $("board-open").onclick = $("board-shortcut").onclick = open;
@@ -178,6 +180,7 @@ export function createCommunityBoard() {
       $("board-counter").textContent = "0 / 280";
       $("board-posts").scrollTop = $("board-posts").scrollHeight;
       status("纸条贴好啦，温柔会在这里停留到今晚。 ");
+      playSound("success");
     }
   };
   $("account-open").onclick = () => showAccount();

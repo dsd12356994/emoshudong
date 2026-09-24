@@ -15,6 +15,7 @@
     <link rel="stylesheet" href="/cottage.css" />
     <link rel="stylesheet" href="/arrival.css" />
     <link rel="stylesheet" href="/model-settings.css" />
+    <link rel="stylesheet" href="/garden-audio.css" />
     <script type="module" src="/app.js"></script>
     <script type="module" src="/world.js"></script>
   </head>
@@ -86,9 +87,32 @@
             >桃花小院<small>A LITTLE PLACE TO EXHALE</small></span
           ></a
         >
-        <div class="season">
-          <span aria-hidden="true">☀</span>
-          <div>春日 · 晴<small>适合慢慢来的一天</small></div>
+        <div class="garden-ambience">
+          <div class="audio-controls" aria-label="小院声音">
+            <button
+              id="music-toggle"
+              type="button"
+              aria-pressed="false"
+              aria-label="开启背景钢琴音乐"
+              title="听一点钢琴"
+            >
+              <span aria-hidden="true">♫</span>
+            </button>
+            <button
+              id="audio-settings-open"
+              type="button"
+              data-audio-settings
+              aria-label="打开音乐与音效设置"
+              title="声音设置"
+            >
+              ⋮
+            </button>
+          </div>
+          <span id="audio-live-status" class="sr-only" role="status"></span>
+          <div class="season">
+            <span aria-hidden="true">☀</span>
+            <div>春日 · 晴<small>适合慢慢来的一天</small></div>
+          </div>
         </div>
       </header>
       <nav class="place-shortcuts" aria-label="小院去处" data-scene-control>
@@ -150,9 +174,18 @@
           <h2 id="cottage-title">小猫的暖暖屋</h2>
           <p>今天也只需要，舒舒服服地在一起。</p>
         </div>
-        <button id="room-help" class="room-help" aria-label="查看小屋玩法">
-          ?
-        </button>
+        <div class="room-sound-controls">
+          <button
+            class="room-help"
+            data-audio-settings
+            aria-label="打开音乐与音效设置"
+          >
+            ♫
+          </button>
+          <button id="room-help" class="room-help" aria-label="查看小屋玩法">
+            ?
+          </button>
+        </div>
       </header>
       <section class="pet-status" aria-label="小猫状态">
         <div class="pet-stat">
@@ -404,15 +437,122 @@
         <li>
           <b>让这里更像你喜欢的样子</b>
           <p>
-            底部“我的小猫”能换毛色，“花瓣”能暂停飘落，“纸条”能重播纸飞机。小猫状态保存在这台浏览器，不会跟账号同步。
+            底部“我的小猫”能换毛色，“花瓣”能暂停飘落，“纸条”能重播纸飞机。右上角音符能开关钢琴，旁边的“⋮”可以选曲、调音量和单独关闭音效。小猫状态和声音偏好保存在这台浏览器，不会跟账号同步。
           </p>
         </li>
       </ol>
+      <button class="secondary full" type="button" data-audio-settings>
+        ♫ 调整小院声音
+      </button>
       <button id="announcement-replay" class="secondary full" type="button">
         再看一次入院公告
       </button>
       <button class="primary full" data-close="guide-dialog">
         知道啦，去慢慢逛
+      </button>
+    </dialog>
+    <dialog
+      id="audio-dialog"
+      class="audio-dialog"
+      aria-labelledby="audio-title"
+    >
+      <div class="dialog-heading">
+        <div>
+          <span class="overline">让声音也轻一点</span>
+          <h2 id="audio-title">小院的声音</h2>
+        </div>
+        <button data-close="audio-dialog" aria-label="关闭声音设置">×</button>
+      </div>
+      <p class="audio-intro">
+        一点钢琴，几声轻响。也可以什么都不放，安静地待着。
+      </p>
+      <section class="audio-setting">
+        <label
+          ><span
+            >♫ 背景钢琴<small>轻轻循环，在小屋和写信时也会陪着你</small></span
+          ><input id="music-switch" type="checkbox" aria-label="开启背景钢琴"
+        /></label>
+        <label class="audio-volume"
+          >音乐音量<input
+            id="music-volume"
+            type="range"
+            min="0"
+            max="100"
+            step="1"
+            value="45"
+          /><output id="music-volume-label" for="music-volume"
+            >45%</output
+          ></label
+        >
+        <label class="audio-track-label" for="audio-track"
+          >今天想听哪一段？</label
+        >
+        <select id="audio-track">
+          <option value="forget">花下慢坐 · Forget Me Not</option>
+          <option value="trifle">小小心事 · A Simple Trifle</option>
+        </select>
+      </section>
+      <section class="audio-setting">
+        <label
+          ><span
+            >✧ 交互轻音效<small
+              >开门、翻信、摸猫，还有寄信后的轻轻回应</small
+            ></span
+          ><input
+            id="effects-switch"
+            type="checkbox"
+            aria-label="开启交互音效"
+            checked
+        /></label>
+        <label class="audio-volume"
+          >音效音量<input
+            id="effects-volume"
+            type="range"
+            min="0"
+            max="100"
+            step="1"
+            value="55"
+          /><output id="effects-volume-label" for="effects-volume"
+            >55%</output
+          ></label
+        >
+      </section>
+      <p id="audio-status" role="status">音乐已关闭，点亮音符再开始。</p>
+      <p class="audio-intro">
+        刷新后需重新开启音乐。切到后台会暂停声音；选曲、音量和音效开关只记在这台浏览器。
+      </p>
+      <details class="audio-credits">
+        <summary>感谢让小院有声音的人 · 免费素材来源</summary>
+        <p>
+          <a
+            href="https://opengameart.org/content/forget-me-not"
+            target="_blank"
+            rel="noopener noreferrer"
+            >Forget Me Not — Kistol</a
+          >（循环版）<br /><a
+            href="https://opengameart.org/content/a-simple-trifle"
+            target="_blank"
+            rel="noopener noreferrer"
+            >A Simple Trifle — jestar</a
+          ><br /><a
+            href="https://kenney.nl/assets/interface-sounds"
+            target="_blank"
+            rel="noopener noreferrer"
+            >Interface Sounds — Kenney</a
+          >
+        </p>
+        <p>
+          以上素材均标注为
+          <a
+            href="https://creativecommons.org/publicdomain/zero/1.0/"
+            target="_blank"
+            rel="noopener noreferrer"
+            >CC0</a
+          >。本站做了音量调整、压缩及淡入淡出。“花下慢坐”“小小心事”是这里的展示名，原曲作者如上。
+        </p>
+      </details>
+      <button class="primary full" data-close="audio-dialog">
+        就这样，慢慢听
       </button>
     </dialog>
     <dialog
@@ -472,7 +612,7 @@
           <section>
             <h3><span>03</span> 心事如何被处理</h3>
             <p>
-              本站不保存树洞对话与生日；它们暂存在当前页面，刷新或另起一封信会清除。浏览器会保存小猫外观、动效和养猫进度。
+              本站不保存树洞对话与生日；它们暂存在当前页面，刷新或另起一封信会清除。浏览器会保存小猫外观、动效、养猫进度和声音偏好。
             </p>
             <p>
               寄信时，对话与所选生辰参考会经过本站发送给
@@ -755,6 +895,9 @@
             >
           </fieldset>
           <div class="letter-side-bottom">
+            <button id="letter-audio-open" data-audio-settings>
+              ♫ 小院声音 <small>音乐 / 音效</small>
+            </button>
             <button id="letter-api-open" data-model-settings>
               API 设置 <small id="letter-model-label">共享 DeepSeek</small>
             </button>
@@ -965,7 +1108,7 @@
       <p>回声是 AI 情感对话工具，不是真人咨询服务，也不能替代专业支持。</p>
       <h3>对话留在哪里？</h3>
       <p>
-        本站不将树洞对话或生日写入数据库、访问日志或浏览器存储。浏览器保存小猫颜色、花瓣动效偏好和养猫状态。树洞对话暂存在当前页面内存中；刷新、关闭页面或开启新对话会清除页面中的记录。
+        本站不将树洞对话或生日写入数据库、访问日志或浏览器存储。浏览器保存小猫颜色、花瓣动效、声音偏好和养猫状态。声音素材从本站按需加载，不连接第三方音乐播放器。树洞对话暂存在当前页面内存中；刷新、关闭页面或开启新对话会清除页面中的记录。
       </p>
       <h3>账号和留言板</h3>
       <p>

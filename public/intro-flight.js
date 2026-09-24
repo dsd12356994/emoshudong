@@ -1,3 +1,4 @@
+import { playSound } from "/garden-audio.js";
 // The welcome note counts five visible seconds, then folds into its own guide.
 export function createIntroFlight({ card, paper, door, replay }) {
   const reduced = matchMedia("(prefers-reduced-motion: reduce)");
@@ -58,6 +59,7 @@ export function createIntroFlight({ card, paper, door, replay }) {
       return;
     }
     phase("folding");
+    playSound("paper");
     try {
       await animate(
         copy,

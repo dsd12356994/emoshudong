@@ -1,4 +1,5 @@
 import { createModelSettings } from "/model-settings.js";
+import { playSound } from "/garden-audio.js";
 const $ = (id) => document.getElementById(id);
 let history = [],
   birth = null,
@@ -21,6 +22,7 @@ const dialogs = [
   "announcement-dialog",
   "funding-dialog",
   "model-dialog",
+  "audio-dialog",
 ];
 const models = createModelSettings({
   onStatus() {
@@ -75,7 +77,10 @@ export function openLetter() {
     if (!$("chat-consent-dialog").open) $("chat-consent-dialog").showModal();
     return;
   }
-  if (!$("letter-dialog").open) $("letter-dialog").showModal();
+  if (!$("letter-dialog").open) {
+    $("letter-dialog").showModal();
+    playSound("paper");
+  }
   $("message").focus();
 }
 $("chat-consent-accept").onclick = () => {
@@ -132,6 +137,7 @@ async function sendMessage() {
     return;
   }
   busy = true;
+  playSound("send");
   controller = new AbortController();
   const user = addMessage("user", text);
   const answer = addMessage(
@@ -164,6 +170,7 @@ async function sendMessage() {
     answer.body.classList.remove("pending");
     answer.body.textContent = result.content;
     history = [...messages, { role: "assistant", content: result.content }];
+    playSound("success");
     if (result.sources?.length) {
       const details = document.createElement("details");
       details.className = "sources";
