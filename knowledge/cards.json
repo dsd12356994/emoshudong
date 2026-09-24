@@ -1,0 +1,146 @@
+[
+  {
+    "id": "nhs-thoughts",
+    "domain": "psychology",
+    "title": "把事实和猜测分开",
+    "publisher": "NHS · Every Mind Matters",
+    "url": "https://www.nhs.uk/every-mind-matters/mental-wellbeing-tips/self-help-cbt-techniques/reframing-unhelpful-thoughts/",
+    "section": "Steps and strategies · 3–4",
+    "evidence": "公共健康自助指南；不是诊断或本产品疗效证明",
+    "reviewed": "2026-09-24",
+    "keywords": [
+      "猜测",
+      "读心",
+      "不回消息",
+      "不喜欢",
+      "焦虑",
+      "自责",
+      "不够好",
+      "事实",
+      "想法",
+      "证据",
+      "thought"
+    ],
+    "summary": "先留意让自己难受的想法，再看看支持与不支持它的事实，尝试更中性、贴近证据的解释。暂时想不到另一种解释也可以，不必强迫自己乐观。",
+    "exercise": "thought_check",
+    "steps": [
+      "写下一句最困扰你的想法。",
+      "分别写出支持它、不能支持它的已知事实。",
+      "试写一句保留不确定性、也更公平的说法。"
+    ]
+  },
+  {
+    "id": "nhs-relationships",
+    "domain": "psychology",
+    "title": "在关系里表达，也保留边界",
+    "publisher": "NHS · Every Mind Matters",
+    "url": "https://www.nhs.uk/every-mind-matters/lifes-challenges/maintaining-healthy-relationships-and-mental-wellbeing/",
+    "section": "Healthy ways to communicate / Set boundaries / Dealing with conflicts",
+    "evidence": "公共健康关系建议；不能判断第三方意愿",
+    "reviewed": "2026-09-24",
+    "keywords": [
+      "关系",
+      "沟通",
+      "吵架",
+      "分手",
+      "边界",
+      "拒绝",
+      "伴侣",
+      "倾听",
+      "表达",
+      "沟通练习",
+      "communication"
+    ],
+    "summary": "认真听并确认自己是否理解对方；难以当面表达时可先写下来。冲突升级时先暂停，平静后再谈。帮助他人也需要界限，保留自己的生活和支持网络。",
+    "exercise": "communication",
+    "steps": [
+      "只描述一次具体发生的事，避免给对方贴标签。",
+      "写下自己的感受和希望被理解的需要。",
+      "邀请对方说说看法；若争执升级，先约定暂停。"
+    ]
+  },
+  {
+    "id": "nhs-worry",
+    "domain": "psychology",
+    "title": "给反复担忧留一个小空档",
+    "publisher": "NHS · Every Mind Matters",
+    "url": "https://www.nhs.uk/every-mind-matters/mental-wellbeing-tips/self-help-cbt-techniques/tackling-your-worries/",
+    "section": "Worry time / Worry tree / Make a plan",
+    "evidence": "公共健康自助指南；个人体验可能不同",
+    "reviewed": "2026-09-24",
+    "keywords": [
+      "担忧",
+      "反复",
+      "内耗",
+      "失眠",
+      "想太多",
+      "控制",
+      "停不下来",
+      "worry"
+    ],
+    "summary": "可试着每天留十到十五分钟写下担忧，区分能采取行动的问题与暂时无法控制的假设。对可行动的问题，写出具体下一步；其他时间把注意力带回眼前。",
+    "exercise": "worry_time",
+    "steps": [
+      "选一个方便的十分钟，把担心的事写下来。",
+      "圈出现在可以做一件小事的问题。",
+      "为这件小事约一个时间；其余先放在纸上。"
+    ]
+  },
+  {
+    "id": "who-stress",
+    "domain": "psychology",
+    "title": "压力自助，从很小的练习开始",
+    "publisher": "World Health Organization",
+    "url": "https://www.who.int/publications/i/item/9789240003927",
+    "section": "Doing What Matters in Times of Stress (2020), Overview",
+    "evidence": "WHO 压力管理指南简介；此卡未代替阅读全文",
+    "reviewed": "2026-09-24",
+    "keywords": ["压力", "累", "疲惫", "练习", "stress"],
+    "summary": "WHO 提供面向压力情境的图文自助指南，也有中文版本与音频练习。可以从每天几分钟开始了解和尝试，不需要一次解决所有困难。"
+  },
+  {
+    "id": "who-pfa",
+    "domain": "psychology",
+    "title": "支持一个正经历困难的人",
+    "publisher": "World Health Organization",
+    "url": "https://www.who.int/publications/i/item/9789241548205",
+    "section": "Psychological first aid: Guide for field workers (2011), Overview",
+    "evidence": "危机后心理急救框架简介；不是自动化治疗方案",
+    "reviewed": "2026-09-24",
+    "keywords": ["危机", "痛苦", "支持", "帮助", "崩溃", "安全"],
+    "summary": "心理急救强调面对严重困难时的人道、支持性和实际帮助，并尊重人的尊严、文化与能力。本产品只借鉴这种支持原则，紧急危险应优先连接现实中的帮助。"
+  },
+  {
+    "id": "sanming-context",
+    "domain": "bazi",
+    "title": "《三命通会》：先了解文本的边界",
+    "publisher": "维基文库 · 四库全书本",
+    "url": "https://zh.wikisource.org/zh-hant/三命通會_(四庫全書本)",
+    "section": "四库全书提要",
+    "evidence": "传统术数文献；不属于心理学或预测效度证据",
+    "reviewed": "2026-09-24",
+    "keywords": ["八字", "合盘", "三命通会", "命理", "用神", "十神", "古籍"],
+    "summary": "这部子平术文献汇集官、印、财、食伤等传统术语。四库提要也指出其传本增补及部分论断的局限。这里用于说明古人的分类语言，不据此断言一个人的性格、健康或姻缘。"
+  },
+  {
+    "id": "ditiansui-symbols",
+    "domain": "bazi",
+    "title": "《滴天髓》：自然意象是一种比喻",
+    "publisher": "维基文库 · 滴天髓辑要",
+    "url": "https://zh.wikisource.org/wiki/滴天髓",
+    "section": "通天论、天干论",
+    "evidence": "传统文化文本；五行意象不是人格测量",
+    "reviewed": "2026-09-24",
+    "keywords": [
+      "八字",
+      "五行",
+      "天干",
+      "甲木",
+      "乙木",
+      "木",
+      "滴天髓",
+      "阴阳"
+    ],
+    "summary": "文本借季节、树木等自然意象说明阴阳五行和干支。可以把这些意象作为自愿的反思话题，例如自己如何理解成长；不能据出生干支认定真实人格或判断两人是否相配。"
+  }
+]

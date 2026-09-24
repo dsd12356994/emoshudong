@@ -21,7 +21,7 @@ with tempfile.TemporaryDirectory(prefix='shudong-deploy-') as temp:
     temp = pathlib.Path(temp)
     archive = temp / 'app.tar.gz'
     with tarfile.open(archive, 'w:gz') as tar:
-        for rel in ['server.mjs', 'lib', 'public', 'package.json', 'package-lock.json', 'node_modules/lunar-javascript']:
+        for rel in ['server.mjs', 'lib', 'knowledge', 'public', 'package.json', 'package-lock.json', 'node_modules/lunar-javascript']:
             tar.add(ROOT / rel, arcname=rel)
     ssh('mkdir -p /opt/shudong/app /opt/shudong/runtime')
     probe = subprocess.run(['ssh', *OPTIONS, HOST, 'test -x /opt/shudong/node/bin/node'], capture_output=True)

@@ -10,7 +10,7 @@
     "dev": "node --watch start-local.mjs",
     "start": "node server.mjs",
     "test": "node --test test/*.test.mjs",
-    "check": "node --check server.mjs && node --check start-local.mjs && node --check public/app.js"
+    "check": "node --check server.mjs && node --check start-local.mjs && node --check lib/agent.mjs && node --check public/app.js && node --check public/world.js"
   },
   "dependencies": {
     "lunar-javascript": "1.7.7"

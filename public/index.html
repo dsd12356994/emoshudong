@@ -1,26 +1,352 @@
 <!doctype html>
 <html lang="zh-CN">
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="回声，一个可以慢慢说心事的 AI 情感树洞。"><title>回声 · 情感树洞</title><link rel="icon" href="/favicon.svg"><link rel="stylesheet" href="/style.css"><script src="/app.js" defer></script></head>
-<body>
-<aside class="sidebar">
-  <a class="brand" href="/" aria-label="回声首页"><img src="/favicon.svg" width="44" height="44" alt=""><span>回声<small>给心事一个回音</small></span></a>
-  <button class="new-chat" id="new-chat"><span aria-hidden="true">＋</span> 开启新对话</button>
-  <div class="side-caption">此刻，你更需要</div>
-  <fieldset class="modes"><legend class="sr-only">对话方式</legend><label><input type="radio" name="mode" value="listen" checked><span><b>先听我说</b><small>不急着找答案，陪你说一会儿</small></span></label><label><input type="radio" name="mode" value="advice"><span><b>一起想办法</b><small>理清感受，找到一个小小的下一步</small></span></label></fieldset>
-  <div class="side-note"><span class="quote-mark">“</span><p>不必把话整理好，<br>也不必表现得很好。</p><span>从你想说的地方开始。</span></div>
-  <div class="sidebar-bottom"><button id="privacy-open">隐私与使用说明 <span aria-hidden="true">↗</span></button><span>AI 陪伴 · 私人试用版</span></div>
-</aside>
-<main>
-  <header><div><span class="eyebrow">你的情感树洞</span><h1>这一刻，留给自己。</h1></div><button id="birth-open" class="birth-button">生辰参考 <span>可选</span></button></header>
-  <div class="conversation" id="conversation">
-    <section class="welcome" id="welcome"><div class="welcome-mark" aria-hidden="true">回 音</div><h2>今天有什么，<br>想找个地方说说？</h2><p>一段放不下的关系，一次没说出口的委屈，<br class="desktop-break">或者只是有一点累了。这里都放得下。</p>
-      <div class="starters"><button data-prompt="我总忍不住猜对方在想什么，越想越累。"><span>关于关系</span>总在猜对方的心思 <i aria-hidden="true">↗</i></button><button data-prompt="有些话一直没有说出口，我想在这里慢慢说。"><span>关于遗憾</span>那些没说出口的话 <i aria-hidden="true">↗</i></button><button data-prompt="最近总觉得自己不够好，我想聊聊这种感觉。"><span>关于自己</span>想和自己和解一点 <i aria-hidden="true">↗</i></button></div>
-    </section>
-    <div id="messages" role="log" aria-label="对话记录" aria-live="polite"></div>
-  </div>
-  <section class="compose-area"><div id="birth-summary" class="birth-summary" hidden></div><div id="status" class="status" role="status">正在连接树洞…</div><form id="chat-form"><label for="message" class="sr-only">想说的心事</label><textarea id="message" placeholder="慢慢说，我在听……" maxlength="2000" rows="3"></textarea><div class="compose-bottom"><span id="counter">0 / 2000</span><span class="keyboard-hint">Enter 发送 · Shift + Enter 换行</span><button type="submit" id="send" disabled>发送 <span aria-hidden="true">↑</span></button></div></form><label class="consent"><input id="consent" type="checkbox">我了解：发送的对话及所选生辰参考会交给 DeepSeek 处理。<button id="consent-detail" type="button">了解详情</button></label><p class="footnote">AI 的回应供参考。关系中的感受与选择，始终属于你。</p></section>
-</main>
-<dialog id="birth-dialog"><form id="birth-form"><div class="dialog-heading"><div><span class="eyebrow">另一种聊天视角</span><h2>生辰参考</h2></div><button type="button" data-close="birth-dialog" aria-label="关闭">×</button></div><p>自愿选择的传统文化视角，不用于预测关系结果。只支持按北京时间记录的公历生日，暂不校正出生地真太阳时。</p><label class="toggle"><input id="birth-enabled" type="checkbox">在聊天中加入生辰参考</label><fieldset id="birth-fields" disabled><legend class="sr-only">出生资料</legend><h3>我自己</h3><div class="field-grid"><label>公历生日<input type="date" id="self-date" min="1900-01-01"></label><label>出生时间（可留空）<input type="time" id="self-time"></label></div><h3>对方 <small>选填，不需要姓名</small></h3><div class="field-grid"><label>公历生日<input type="date" id="other-date" min="1900-01-01"></label><label>出生时间（可留空）<input type="time" id="other-time"></label></div><p class="muted">不清楚时间就留空；不会补造时柱。请只填写有权提供的资料。</p></fieldset><div id="birth-result" class="birth-result" aria-live="polite"></div><div id="birth-error" role="alert"></div><div class="dialog-actions"><button type="button" data-close="birth-dialog" class="secondary">取消</button><button type="submit" class="primary">保存本次设置</button></div></form></dialog>
-<dialog id="privacy-dialog"><div class="dialog-heading"><h2>你的心事，如何被处理</h2><button data-close="privacy-dialog" aria-label="关闭">×</button></div><p>回声是 AI 情感对话工具，不是真人咨询服务，也不能替代专业支持。</p><h3>对话留在哪里？</h3><p>本站不将对话或生日写入数据库、访问日志或浏览器存储。内容暂存在当前页面内存中；刷新、关闭页面或开启新对话会清除页面中的记录。</p><h3>谁会收到内容？</h3><p>发送时，当前消息和最近最多十轮对话会经过本站服务器发送给 DeepSeek。开启生辰参考时，还会发送排出的干支及其说明。模型服务商按其自身政策处理数据；本站无法承诺其不保存或不用于训练，也无法删除服务商已收到的数据。</p><h3>用量与隐私</h3><p>为控制费用，服务器保存每日调用次数和经过加盐散列的连接地址标识，不保存聊天正文。不要填写真实姓名、联系方式或他人的可识别私密信息。</p><h3>关于生辰参考</h3><p>生辰分析是传统文化娱乐视角，没有科学依据用于判定人格、健康、感情匹配或未来。实际相处比任何命理解释更重要。</p><button class="primary full" data-close="privacy-dialog">我知道了</button></dialog>
-<dialog id="clear-dialog"><h2>开启一段新对话？</h2><p>当前页面的聊天和生辰资料会清除，无法恢复。已发送给模型服务商的内容不会因此被撤回。</p><div class="dialog-actions"><button class="secondary" data-close="clear-dialog">再聊一会儿</button><button class="primary" id="confirm-clear">清除并开始</button></div></dialog>
-</body></html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="theme-color" content="#355c39" />
+    <meta
+      name="description"
+      content="走进桃花小院，把心事写成一封信。回声，一个温柔的 AI 情感树洞。"
+    />
+    <title>回声 · 桃花小院</title>
+    <link rel="icon" href="/favicon.svg" />
+    <link rel="preload" as="image" href="/assets/garden.webp" />
+    <link rel="stylesheet" href="/style.css" />
+    <script src="/app.js" defer></script>
+    <script type="module" src="/world.js"></script>
+  </head>
+  <body>
+    <main class="garden" aria-label="桃花小院">
+      <div class="world" id="world">
+        <img
+          class="garden-art"
+          src="/assets/garden.webp"
+          width="1586"
+          height="992"
+          alt="绿草环绕的木屋、小菜园与右侧开满粉色桃花的大树，石子路通向暖亮的树洞。"
+          fetchpriority="high"
+        /><button
+          class="tree-door"
+          id="tree-door"
+          data-enter
+          aria-label="走进桃树的树洞，写一封信"
+        >
+          <span class="door-glow" aria-hidden="true"></span
+          ><span class="door-label"
+            ><span aria-hidden="true">✉</span> 把心事寄到这里
+            <b aria-hidden="true">↗</b></span
+          >
+        </button>
+      </div>
+      <div class="vignette" aria-hidden="true"></div>
+      <div class="petals" id="petals" aria-hidden="true"></div>
+      <header class="garden-header">
+        <a class="brand" href="/" aria-label="回声，桃花小院"
+          ><span class="brand-seal">回<br />声</span
+          ><span class="brand-text"
+            >桃花小院<small>A LITTLE PLACE TO EXHALE</small></span
+          ></a
+        >
+        <div class="season">
+          <span aria-hidden="true">☀</span>
+          <div>春日 · 晴<small>适合慢慢来的一天</small></div>
+        </div>
+      </header>
+      <section class="garden-caption">
+        <span class="overline">有些话，风会替你保管。</span>
+        <h1>在这里，<br />心事可以慢慢说。</h1>
+        <p>走进桃树的树洞，给自己一封回信。</p>
+        <button class="enter-button" data-enter>
+          <span aria-hidden="true">✉</span> 给树洞写信
+          <span aria-hidden="true">→</span></button
+        ><span class="private-note">AI 陪伴 · 对话不在本站保存</span>
+      </section>
+      <footer class="garden-footer">
+        <span class="garden-location"
+          ><span aria-hidden="true">⌖</span> 桃花源 · 你的心事歇脚处</span
+        >
+        <nav class="garden-tools" aria-label="小院设置">
+          <button id="cat-open">
+            <img
+              class="cat-image"
+              src="/assets/cat.webp"
+              alt=""
+              width="30"
+              height="30"
+            />我的小猫</button
+          ><button id="library-open">
+            <span aria-hidden="true">▤</span> 资料架</button
+          ><button id="motion-toggle" aria-pressed="true">花瓣 · 飘落</button
+          ><button id="privacy-open" aria-label="隐私与使用说明">隐私</button>
+        </nav>
+      </footer>
+    </main>
+    <dialog
+      id="letter-dialog"
+      class="letter-dialog"
+      aria-labelledby="letter-title"
+    >
+      <div class="letter-layout">
+        <aside class="letter-side">
+          <a class="letter-brand" href="#" id="letter-home"
+            ><span class="brand-seal">回<br />声</span
+            ><span>树洞来信<small>LETTERS IN BLOOM</small></span></a
+          >
+          <div class="postmark" aria-hidden="true">
+            桃 花 小 院<br /><span>✿</span><br />见 字 如 面
+          </div>
+          <p class="side-intro">字不必工整，<br />心事也一样。</p>
+          <fieldset class="modes">
+            <legend>这封信，希望被怎样回应？</legend>
+            <label
+              ><input type="radio" name="mode" value="listen" checked /><span
+                >先听我说<small>有些感受，值得被听见</small></span
+              ></label
+            ><label
+              ><input type="radio" name="mode" value="advice" /><span
+                >一起想办法<small>一起找一个小小的下一步</small></span
+              ></label
+            >
+          </fieldset>
+          <div class="letter-side-bottom">
+            <button id="birth-open">生辰笺 <small>可选</small></button
+            ><button id="new-chat">
+              另起一封信 <span aria-hidden="true">＋</span>
+            </button>
+            <p>回信来自 AI。<br />你的感受与选择，始终属于你。</p>
+          </div>
+        </aside>
+        <section class="letter-main">
+          <header class="letter-heading">
+            <div>
+              <span class="overline">一封只属于此刻的信</span>
+              <h2 id="letter-title">致，树洞里的朋友</h2>
+            </div>
+            <button
+              data-close="letter-dialog"
+              class="close-button"
+              aria-label="收起信纸，回到小院"
+            >
+              ×
+            </button>
+          </header>
+          <div class="conversation" id="conversation">
+            <section class="welcome" id="welcome">
+              <div class="letter-date">桃花盛开的某一天</div>
+              <h3>见字如面。</h3>
+              <p>
+                如果今天有点累，就在这里坐一会儿。<br />你可以从任何地方说起，<br />不必急着得到一个答案。
+              </p>
+              <div class="starters">
+                <button data-prompt="我总忍不住猜对方在想什么，越想越累。">
+                  关于一段关系 <span aria-hidden="true">↗</span></button
+                ><button data-prompt="有些话一直没有说出口，我想在这里慢慢说。">
+                  没说出口的话 <span aria-hidden="true">↗</span></button
+                ><button data-prompt="最近总觉得自己不够好，我想聊聊这种感觉。">
+                  想抱抱自己 <span aria-hidden="true">↗</span>
+                </button>
+              </div>
+              <p class="welcome-sign">
+                慢慢写，我在读。<br /><span>回声</span>
+              </p>
+            </section>
+            <div
+              id="messages"
+              role="log"
+              aria-label="往来书信"
+              aria-live="polite"
+            ></div>
+          </div>
+          <section class="compose-area">
+            <div id="birth-summary" class="birth-summary" hidden></div>
+            <div id="status" class="status" role="status">正在打开信箱…</div>
+            <form id="chat-form">
+              <label class="sr-only" for="message">写下想说的心事</label
+              ><textarea
+                id="message"
+                placeholder="亲爱的树洞，今天我想说……"
+                maxlength="2000"
+                rows="3"
+              ></textarea>
+              <div class="compose-bottom">
+                <span id="counter">0 / 2000</span
+                ><span class="keyboard-hint"
+                  >Enter 寄出 · Shift + Enter 换行</span
+                ><button type="submit" id="send" disabled>寄出这封信 ↗</button>
+              </div>
+            </form>
+            <label class="consent"
+              ><input id="consent" type="checkbox" /><span
+                >我了解，寄出的对话及所选生辰参考会交给 DeepSeek 处理。<button
+                  id="consent-detail"
+                  type="button"
+                >
+                  详情
+                </button></span
+              ></label
+            >
+          </section>
+        </section>
+      </div>
+    </dialog>
+    <dialog id="cat-dialog" class="cat-dialog" aria-labelledby="cat-title">
+      <form id="cat-form">
+        <div class="dialog-heading">
+          <span class="overline">小院的第一位朋友</span
+          ><button
+            type="button"
+            data-close="cat-dialog"
+            aria-label="暂时使用默认小猫"
+          >
+            ×
+          </button>
+        </div>
+        <img
+          class="cat-image cat-portrait"
+          src="/assets/cat.webp"
+          alt="你的小猫"
+          width="120"
+          height="120"
+        />
+        <h2 id="cat-title">变成一只小猫，<br />来小院走走吧。</h2>
+        <p>给小猫挑个喜欢的颜色。<br />移动鼠标，它就会陪着你。</p>
+        <div class="cat-swatches" aria-label="预设毛色">
+          <button
+            type="button"
+            data-color="#f4dab0"
+            aria-label="奶油色"
+          ></button
+          ><button
+            type="button"
+            data-color="#e5a36b"
+            aria-label="橘子色"
+          ></button
+          ><button
+            type="button"
+            data-color="#b4becb"
+            aria-label="烟灰色"
+          ></button
+          ><button
+            type="button"
+            data-color="#f1b4c3"
+            aria-label="桃花色"
+          ></button>
+        </div>
+        <label class="custom-color"
+          >或者，调一个自己的颜色
+          <input
+            type="color"
+            id="cat-color"
+            value="#f4dab0"
+            aria-label="自定义小猫颜色" /></label
+        ><button class="primary full" type="submit">就这样，走进小院 →</button
+        ><small class="cat-hint">只在这台浏览器记住外观偏好</small>
+      </form>
+    </dialog>
+    <dialog id="library-dialog" aria-labelledby="library-title">
+      <div class="dialog-heading">
+        <div>
+          <span class="overline">桃树旁的一小格书架</span>
+          <h2 id="library-title">回信，也有来处。</h2>
+        </div>
+        <button data-close="library-dialog" aria-label="关闭资料架">×</button>
+      </div>
+      <p>
+        这里是目前可供回信查阅的短卡片。它们帮助梳理思路，不替你定义感受或决定关系。传统文化与心理支持分开使用。
+      </p>
+      <div id="library-list" class="library-list">正在整理书架…</div>
+    </dialog>
+    <dialog id="birth-dialog">
+      <form id="birth-form">
+        <div class="dialog-heading">
+          <div>
+            <span class="eyebrow">另一种聊天视角</span>
+            <h2>生辰参考</h2>
+          </div>
+          <button type="button" data-close="birth-dialog" aria-label="关闭">
+            ×
+          </button>
+        </div>
+        <p>
+          自愿选择的传统文化视角，不用于预测关系结果。只支持按北京时间记录的公历生日，暂不校正出生地真太阳时。
+        </p>
+        <label class="toggle"
+          ><input
+            id="birth-enabled"
+            type="checkbox"
+          />在聊天中加入生辰参考</label
+        >
+        <fieldset id="birth-fields" disabled>
+          <legend class="sr-only">出生资料</legend>
+          <h3>我自己</h3>
+          <div class="field-grid">
+            <label
+              >公历生日<input
+                type="date"
+                id="self-date"
+                min="1900-01-01" /></label
+            ><label
+              >出生时间（可留空）<input type="time" id="self-time"
+            /></label>
+          </div>
+          <h3>对方 <small>选填，不需要姓名</small></h3>
+          <div class="field-grid">
+            <label
+              >公历生日<input
+                type="date"
+                id="other-date"
+                min="1900-01-01" /></label
+            ><label
+              >出生时间（可留空）<input type="time" id="other-time"
+            /></label>
+          </div>
+          <p class="muted">
+            不清楚时间就留空；不会补造时柱。请只填写有权提供的资料。
+          </p>
+        </fieldset>
+        <div id="birth-result" class="birth-result" aria-live="polite"></div>
+        <div id="birth-error" role="alert"></div>
+        <div class="dialog-actions">
+          <button type="button" data-close="birth-dialog" class="secondary">
+            取消</button
+          ><button type="submit" class="primary">保存本次设置</button>
+        </div>
+      </form>
+    </dialog>
+    <dialog id="privacy-dialog">
+      <div class="dialog-heading">
+        <h2>你的心事，如何被处理</h2>
+        <button data-close="privacy-dialog" aria-label="关闭">×</button>
+      </div>
+      <p>回声是 AI 情感对话工具，不是真人咨询服务，也不能替代专业支持。</p>
+      <h3>对话留在哪里？</h3>
+      <p>
+        本站不将对话或生日写入数据库、访问日志或浏览器存储。浏览器只保存小猫颜色与花瓣动效偏好。内容暂存在当前页面内存中；刷新、关闭页面或开启新对话会清除页面中的记录。
+      </p>
+      <h3>谁会收到内容？</h3>
+      <p>
+        发送时，当前消息和最近最多十轮对话（一次回信最多两次模型请求）会经过本站服务器发送给
+        DeepSeek。开启生辰参考时，还会发送排出的干支及其说明。模型服务商按其自身政策处理数据；本站无法承诺其不保存或不用于训练，也无法删除服务商已收到的数据。
+      </p>
+      <h3>用量与隐私</h3>
+      <p>
+        为控制费用，服务器保存每日调用次数和经过加盐散列的连接地址标识，不保存聊天正文。不要填写真实姓名、联系方式或他人的可识别私密信息。
+      </p>
+      <h3>关于生辰参考</h3>
+      <p>
+        生辰分析是传统文化娱乐视角，没有科学依据用于判定人格、健康、感情匹配或未来。实际相处比任何命理解释更重要。
+      </p>
+      <button class="primary full" data-close="privacy-dialog">我知道了</button>
+    </dialog>
+    <dialog id="clear-dialog">
+      <h2>开启一段新对话？</h2>
+      <p>
+        当前页面的聊天和生辰资料会清除，无法恢复。已发送给模型服务商的内容不会因此被撤回。
+      </p>
+      <div class="dialog-actions">
+        <button class="secondary" data-close="clear-dialog">再聊一会儿</button
+        ><button class="primary" id="confirm-clear">清除并开始</button>
+      </div>
+    </dialog>
+  </body>
+</html>
