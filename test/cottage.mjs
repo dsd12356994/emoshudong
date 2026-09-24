@@ -1,4 +1,5 @@
 import { chromium, expect } from "@playwright/test";
+import { dismissArrival } from "./arrival-helper.mjs";
 import assert from "node:assert/strict";
 import { mkdtempSync, mkdirSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -43,6 +44,7 @@ async function pageFor(options = {}) {
     if (m.type() === "error") errors.push(m.text());
   });
   await page.goto(base);
+  await dismissArrival(page);
   return { context, page };
 }
 try {
@@ -82,6 +84,7 @@ try {
   await expect(page.locator("#feed-cat")).toBeDisabled();
   await page.screenshot({ path: "test-results/room-desktop.png" });
   await page.reload();
+  await dismissArrival(page);
   await page.locator("#cottage-door").click();
   await expect(page.locator("#feed-cat")).toBeDisabled();
   timeOffset = 86400000;

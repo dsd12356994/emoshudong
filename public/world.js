@@ -2,10 +2,11 @@ import { createCatCompanion } from "/cat-companion.js";
 import { createIntroFlight } from "/intro-flight.js";
 import { createCottage } from "/cottage.js";
 import { createCommunityBoard } from "/community.js";
+import { createArrival } from "/arrival.js";
 const $ = (id) => document.getElementById(id);
 const reduced = matchMedia("(prefers-reduced-motion: reduce)");
 const cottage = createCottage();
-createCommunityBoard();
+const community = createCommunityBoard();
 let entering = false;
 function enterTree() {
   if (entering || $("letter-dialog").open) return;
@@ -129,7 +130,7 @@ let firstVisit = true;
 try {
   firstVisit = !localStorage.getItem("huisheng-garden");
 } catch {}
-if (firstVisit) $("cat-dialog").showModal();
+createArrival({ community, firstVisit });
 createIntroFlight({
   card: $("intro-card"),
   paper: $("intro-paper"),

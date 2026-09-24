@@ -1,4 +1,5 @@
 import { chromium, expect } from "@playwright/test";
+import { dismissArrival } from "./arrival-helper.mjs";
 import assert from "node:assert/strict";
 import { mkdirSync } from "node:fs";
 const browser = await chromium.launch({ channel: "msedge", headless: true });
@@ -19,6 +20,7 @@ async function setup(options) {
     if (m.type() === "error") errors.push(m.text());
   });
   await page.goto(base);
+  await dismissArrival(page);
   await expect(page.locator("#garden-cat")).toHaveAttribute(
     "data-state",
     "idle",

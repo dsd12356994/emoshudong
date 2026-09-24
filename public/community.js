@@ -1,5 +1,7 @@
 export function createCommunityBoard() {
   const $ = (id) => document.getElementById(id);
+  const account = $("account-dialog");
+  let entryResolve = null;
   let currentUser = null,
     mode = "register",
     busy = false,
@@ -13,6 +15,35 @@ export function createCommunityBoard() {
   function status(text) {
     $("board-status").textContent = text;
   }
+  function entryView() {
+    const entry = account.dataset.entry === "true";
+    const returning = entry && !!currentUser;
+    $("account-returning").hidden = !returning;
+    $("account-form").hidden = returning;
+    account.querySelector(".account-tabs").hidden = returning;
+    $("account-guest-choice").hidden = !entry;
+    $("account-title").textContent = entry
+      ? "欢迎来桃花小院"
+      : "认识一下，好吗？";
+    $("account-intro").textContent = entry
+      ? "登录留下一个昵称，或先做游客，轻轻松松地逛逛。"
+      : "登记后就可以留言。只需昵称，不需要真实姓名。";
+    $("account-welcome").textContent = returning
+      ? `已经为你记住登录状态，${currentUser.nickname}。`
+      : "";
+  }
+  function showAccount(entry = false) {
+    account.dataset.entry = String(entry);
+    setMode(entry ? "login" : "register");
+    entryView();
+    account.showModal();
+  }
+  function accountBusy(value) {
+    account.dataset.busy = String(value);
+    account
+      .querySelectorAll("button")
+      .forEach((button) => (button.disabled = value));
+  }
   function render(data) {
     currentUser = data.user;
     serverTime = data.serverTime;
@@ -23,6 +54,7 @@ export function createCommunityBoard() {
       : "路过也可以先看看。";
     $("account-open").hidden = !!currentUser;
     $("account-logout").hidden = !currentUser;
+    if (account.open) entryView();
     $("board-count").textContent = `今天的 ${data.posts.length} 张纸条`;
     const list = $("board-posts"),
       scroll = list.scrollTop;
@@ -133,7 +165,7 @@ export function createCommunityBoard() {
     event.preventDefault();
     if (!currentUser) {
       status("先登记或登录一个昵称，就能贴上纸条。");
-      $("account-dialog").showModal();
+      showAccount();
       return;
     }
     if (
@@ -148,7 +180,7 @@ export function createCommunityBoard() {
       status("纸条贴好啦，温柔会在这里停留到今晚。 ");
     }
   };
-  $("account-open").onclick = () => $("account-dialog").showModal();
+  $("account-open").onclick = () => showAccount();
   $("account-logout").onclick = async () => {
     if (await mutate("/api/account/logout", {}))
       status("已经退出，仍然可以看看大家的纸条。");
@@ -170,8 +202,7 @@ export function createCommunityBoard() {
     if (busy) return;
     busy = true;
     requestId++;
-    const buttons = [$("account-submit"), $("register-tab"), $("login-tab")];
-    buttons.forEach((b) => (b.disabled = true));
+    accountBusy(true);
     $("account-status").textContent = "正在打开小院的门…";
     try {
       render(
@@ -183,18 +214,44 @@ export function createCommunityBoard() {
       $("account-password").value = "";
       $("account-dialog").close();
       status("欢迎回来，纸条可以署名，也可以匿名。");
-      $("board-message").focus();
+      if ($("board-dialog").open) $("board-message").focus();
     } catch (e) {
       $("account-status").textContent = e.message;
     } finally {
       busy = false;
-      buttons.forEach((b) => (b.disabled = false));
+      accountBusy(false);
     }
   };
   $("account-dialog").addEventListener("close", () => {
     $("account-password").value = "";
     $("account-status").textContent = "";
+    const complete = entryResolve;
+    entryResolve = null;
+    account.dataset.entry = "false";
+    complete?.();
   });
+  account.addEventListener("cancel", (event) => {
+    if (account.dataset.busy === "true") event.preventDefault();
+  });
+  $("account-continue").onclick = () => account.close();
+  $("account-guest").onclick = async () => {
+    if (busy) return;
+    busy = true;
+    requestId++;
+    accountBusy(true);
+    try {
+      render(await json("/api/account/logout", {}));
+      account.close();
+    } catch {
+      const message = "暂时无法切换游客。可以关闭窗口继续浏览，联网后再试。";
+      $("account-status").textContent = message;
+      if (!$("account-returning").hidden)
+        $("account-welcome").textContent = message;
+    } finally {
+      busy = false;
+      accountBusy(false);
+    }
+  };
   // No background polling when the board is closed or the tab is hidden.
   setInterval(() => {
     if (!$("board-dialog").open || document.hidden) return;
@@ -213,4 +270,13 @@ export function createCommunityBoard() {
   document.addEventListener("visibilitychange", () => {
     if (!document.hidden && $("board-dialog").open) load();
   });
+  return {
+    promptEntry() {
+      return new Promise((resolve) => {
+        entryResolve = resolve;
+        showAccount(true);
+        load();
+      });
+    },
+  };
 }

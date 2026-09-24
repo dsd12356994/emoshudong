@@ -1,4 +1,5 @@
 import { chromium, expect } from "@playwright/test";
+import { dismissArrival } from "./arrival-helper.mjs";
 import assert from "node:assert/strict";
 
 const browser = await chromium.launch({ channel: "msedge", headless: true });
@@ -16,6 +17,7 @@ try {
   const errors = [];
   page.on("pageerror", (e) => errors.push(e.message));
   await page.goto(base);
+  await dismissArrival(page);
   await expect(page.locator("#garden-cat")).toHaveAttribute(
     "data-state",
     "idle",

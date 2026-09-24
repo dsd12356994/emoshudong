@@ -1,4 +1,5 @@
 import { restorePet, advancePet, petAction, petDay } from "/pet-state.js";
+import { createPetMotion } from "/pet-motion.js";
 export function createCottage() {
   const $ = (id) => document.getElementById(id);
   const room = $("cottage-dialog"),
@@ -23,6 +24,7 @@ export function createCottage() {
     texture = document.createElement("canvas");
   texture.width = texture.height = 512;
   const ctx = $("resting-cat").getContext("2d");
+  const detailMotion = createPetMotion($("resting-cat"));
   function persist(force = false) {
     if (!force && Date.now() - lastSaved < 5000) return;
     try {
@@ -32,6 +34,7 @@ export function createCottage() {
   }
   function draw(next) {
     if (!loaded || frame === next) return;
+    detailMotion.stop();
     ctx.clearRect(0, 0, 256, 256);
     ctx.imageSmoothingEnabled = false;
     ctx.drawImage(
@@ -114,11 +117,13 @@ export function createCottage() {
   }
   function react(part, message) {
     clearTimeout(reactionTimer);
+    detailMotion.stop();
     cat.dataset.reaction = "calm";
     void cat.offsetWidth;
     cat.dataset.reaction = part;
     reactionUntil = now() + 2200;
     render();
+    detailMotion.start(part);
     $("cat-thought").textContent = message;
     reactionTimer = setTimeout(() => {
       cat.dataset.reaction = "calm";
@@ -127,7 +132,7 @@ export function createCottage() {
     }, 2200);
   }
   const responses = {
-    head: "呼噜噜～把小脑袋往你的手心蹭一蹭。",
+    head: "呼噜噜～耳尖轻轻抖了抖，喜欢你这样摸摸。",
     belly: "软乎乎的肚皮，放心地交给你啦。",
     paw: "伸个小懒腰，再和你碰一下爪爪。",
     tail: "尾巴尖轻轻摇一摇：喜欢你来陪我。",
@@ -183,6 +188,7 @@ export function createCottage() {
   }
   $("cottage-door").onclick = $("cottage-shortcut").onclick = openRoom;
   room.addEventListener("close", () => {
+    detailMotion.stop();
     $("cottage-door").classList.remove("is-opening");
     state = advancePet(state, now());
     persist(true);

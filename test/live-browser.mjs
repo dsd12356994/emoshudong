@@ -1,5 +1,6 @@
 // Explicit smoke test; sends one synthetic message to the configured paid provider.
 import { chromium } from "@playwright/test";
+import { dismissArrival } from "./arrival-helper.mjs";
 import { fileURLToPath } from "node:url";
 const browser = await chromium.launch({ channel: "msedge", headless: true });
 const base = process.env.TEST_URL || "http://127.0.0.1:3180";
@@ -10,6 +11,7 @@ try {
   const errors = [];
   page.on("pageerror", (error) => errors.push(error.message));
   await page.goto(base);
+  await dismissArrival(page);
   await page.locator("#cat-form button[type=submit]").click();
   await page.locator("#tree-door").click();
   await page

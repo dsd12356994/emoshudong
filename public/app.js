@@ -15,6 +15,7 @@ const dialogs = [
   "board-dialog",
   "account-dialog",
   "guide-dialog",
+  "announcement-dialog",
 ];
 const today = new Date().toLocaleDateString("en-CA");
 for (const id of ["self-date", "other-date"]) $(id).max = today;
@@ -178,6 +179,7 @@ document
   );
 dialogs.forEach((id) =>
   $(id).addEventListener("click", (e) => {
+    if ($(id).dataset.busy === "true") return;
     if (e.target === $(id)) {
       const r = $(id).getBoundingClientRect();
       if (

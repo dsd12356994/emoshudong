@@ -1,4 +1,5 @@
 import { chromium } from "@playwright/test";
+import { dismissArrival } from "./arrival-helper.mjs";
 import assert from "node:assert/strict";
 import { mkdirSync } from "node:fs";
 import { fileURLToPath } from "node:url";
@@ -28,6 +29,7 @@ try {
     });
   });
   await page.goto(base);
+  await dismissArrival(page);
   await page.locator("#cat-dialog").waitFor();
   await page.locator(".cat-portrait").evaluate((img) => img.decode());
   await page.screenshot({ path: fileURLToPath(new URL("arrival.png", dir)) });
@@ -131,6 +133,7 @@ try {
     false,
   );
   await page.reload();
+  await dismissArrival(page);
   assert.equal(await page.locator("#cat-dialog").isVisible(), false);
   assert.equal(await page.locator("#messages").textContent(), "");
   await page.emulateMedia({ reducedMotion: "reduce" });

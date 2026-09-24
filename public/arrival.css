@@ -1,0 +1,234 @@
+.account-guest-choice {
+  margin-top: 18px;
+  text-align: center;
+  border-top: 1px dashed #dbc6ad;
+  padding-top: 15px;
+}
+.account-guest-choice > span {
+  display: block;
+  font-size: 11px;
+  color: #a18b78;
+  margin-bottom: 10px;
+}
+.account-guest-choice small {
+  display: block;
+  font-size: 10px;
+  color: #95806c;
+  margin-top: 11px;
+  line-height: 1.7;
+}
+.account-returning {
+  margin-top: 23px;
+  text-align: center;
+}
+.account-returning > span {
+  display: block;
+  color: #b78083;
+  font-size: 40px;
+  margin: 18px;
+}
+.account-returning p {
+  margin-bottom: 22px;
+}
+#account-dialog[data-entry="true"] {
+  max-height: 94dvh;
+}
+dialog.announcement-dialog {
+  width: min(860px, calc(100vw - 28px));
+  max-height: 92dvh;
+  padding: 0;
+  background: #fbf4e5;
+  border: 7px solid #8a6041;
+  box-shadow:
+    inset 0 0 0 2px #d6b182,
+    0 30px 90px #21342775;
+}
+.announcement-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 13px 24px;
+  background: #e9d7b9;
+  border-bottom: 1px solid #d9bf98;
+}
+.announcement-heading .overline {
+  color: #806a51;
+  font-size: 11px;
+  letter-spacing: 3px;
+}
+.announcement-heading button {
+  background: transparent;
+  font-size: 25px;
+  color: #927455;
+}
+.announcement-scroll {
+  padding: 24px 30px 19px;
+  max-height: calc(92dvh - 133px);
+  overflow: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: #d0b58f transparent;
+}
+.announcement-intro {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+  margin-bottom: 22px;
+}
+.announcement-flower {
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  width: 68px;
+  height: 78px;
+  color: #b97985;
+  font-size: 44px;
+  border: 1px solid #d7bda0;
+  background: #efded080;
+  transform: rotate(-4deg);
+}
+.announcement-intro h2 {
+  font-size: 32px;
+  font-weight: 500;
+  letter-spacing: 3px;
+  margin-bottom: 6px;
+}
+.announcement-intro p {
+  font-size: 12px;
+  line-height: 1.85;
+}
+.announcement-columns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px 28px;
+}
+.announcement-columns section {
+  border-top: 1px dashed #d6c4a8;
+  padding-top: 14px;
+}
+.announcement-columns h3 {
+  margin: 0 0 9px;
+  font-size: 18px;
+  font-weight: 500;
+}
+.announcement-columns h3 span {
+  font:
+    12px Georgia,
+    serif;
+  color: #b49376;
+  margin-right: 9px;
+}
+.announcement-columns p,
+.announcement-columns li {
+  font-size: 12px;
+  color: #7d6c57;
+  line-height: 1.85;
+}
+.announcement-columns p + p {
+  margin-top: 7px;
+}
+.announcement-columns ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.announcement-columns li + li {
+  margin-top: 6px;
+}
+.announcement-columns b {
+  font-weight: 500;
+  color: #80614c;
+}
+.announcement-consent {
+  margin-top: 19px;
+  padding: 10px 14px;
+  background: #eadbd344;
+  border-left: 2px solid #bd8b8c;
+  font-size: 10px;
+}
+.announcement-footer {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 15px 24px;
+  background: #efe1c7;
+  border-top: 1px solid #d6bf9d;
+  font-size: 11px;
+}
+.announcement-footer > span {
+  margin-right: auto;
+  color: #987b5d;
+  white-space: nowrap;
+}
+.announcement-footer button {
+  background: transparent;
+  font-size: 11px;
+  padding: 5px 0;
+  color: #8e6757;
+}
+.announcement-footer #announcement-hold {
+  padding: 7px 12px;
+  border: 1px solid #bc9877;
+  border-radius: 3px;
+  white-space: nowrap;
+}
+.announcement-footer #announcement-hold[aria-pressed="true"] {
+  background: #fff5e5;
+}
+#announcement-replay {
+  margin: 17px 0 10px;
+}
+@media (max-width: 600px) {
+  dialog.announcement-dialog {
+    border-width: 5px;
+    max-height: 94dvh;
+  }
+  .announcement-heading {
+    padding: 10px 16px;
+  }
+  .announcement-heading .overline {
+    font-size: 10px;
+  }
+  .announcement-scroll {
+    padding: 20px 18px;
+    max-height: calc(94dvh - 143px);
+  }
+  .announcement-intro {
+    gap: 13px;
+    align-items: flex-start;
+  }
+  .announcement-flower {
+    width: 41px;
+    height: 55px;
+    font-size: 29px;
+  }
+  .announcement-intro h2 {
+    font-size: 25px;
+    letter-spacing: 1px;
+  }
+  .announcement-columns {
+    grid-template-columns: 1fr;
+    gap: 17px;
+  }
+  .announcement-columns p,
+  .announcement-columns li {
+    font-size: 12px;
+  }
+  .announcement-footer {
+    padding: 10px 13px;
+    flex-wrap: wrap;
+    gap: 5px 13px;
+  }
+  .announcement-footer > span {
+    flex: 1;
+  }
+  .announcement-footer #announcement-privacy {
+    margin-left: auto;
+  }
+  .announcement-footer #announcement-hold {
+    margin-left: 30px;
+  }
+  .account-dialog {
+    padding: 23px;
+  }
+}

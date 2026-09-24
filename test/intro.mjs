@@ -1,4 +1,5 @@
 import { chromium, expect } from "@playwright/test";
+import { dismissArrival } from "./arrival-helper.mjs";
 import assert from "node:assert/strict";
 const browser = await chromium.launch({ channel: "msedge", headless: true });
 const base = process.env.TEST_URL || "http://127.0.0.1:3180";
@@ -9,6 +10,7 @@ try {
   });
   page.on("pageerror", (e) => errors.push(e.message));
   await page.goto(base);
+  await dismissArrival(page);
   await expect(page.locator("#cat-dialog")).toBeVisible();
   // The card must not use up its visible reading time behind the first dialog.
   await page.waitForTimeout(5200);
@@ -93,6 +95,7 @@ try {
   const mobile = await context.newPage();
   mobile.on("pageerror", (e) => errors.push(e.message));
   await mobile.goto(base);
+  await dismissArrival(mobile);
   await expect(mobile.locator("#intro-card")).toHaveAttribute(
     "data-phase",
     "flying",
@@ -139,6 +142,7 @@ try {
     ),
   );
   await reduced.goto(base);
+  await dismissArrival(reduced);
   await reduced.clock.fastForward(4900);
   await expect(reduced.locator("#intro-card")).toBeVisible();
   await reduced.clock.fastForward(200);

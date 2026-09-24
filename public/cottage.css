@@ -390,17 +390,11 @@ dialog.cottage-dialog {
 .room-cat[data-expression="sleepy"] .sleep-symbol {
   display: block;
 }
-.room-cat[data-reaction="head"] canvas {
-  animation: cat-nuzzle 1.2s ease;
-}
 .room-cat[data-reaction="belly"] canvas {
   animation: cat-roll 1.2s ease;
 }
 .room-cat[data-reaction="paw"] canvas {
   animation: cat-stretch 1.2s ease;
-}
-.room-cat[data-reaction="tail"] canvas {
-  animation: cat-wiggle 1.2s ease;
 }
 .room-cat[data-reaction="feed"] canvas {
   animation: cat-nuzzle 1.2s ease;
@@ -427,16 +421,6 @@ dialog.cottage-dialog {
 @keyframes cat-stretch {
   40% {
     transform: scale(1.08, 0.94) translateY(3px);
-  }
-}
-@keyframes cat-wiggle {
-  25%,
-  65% {
-    transform: rotate(3deg);
-  }
-  45%,
-  85% {
-    transform: rotate(-2deg);
   }
 }
 @keyframes pet-love {
