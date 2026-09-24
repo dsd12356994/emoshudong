@@ -55,6 +55,7 @@ try {
     "paused",
   );
   await page.locator("#tree-door").click();
+  await page.locator("#letter-dialog").waitFor();
   await page.screenshot({
     path: fileURLToPath(new URL("letter-desktop.png", dir)),
   });
@@ -117,7 +118,8 @@ try {
     ),
     "#f1b4c3",
   );
-  await page.locator(".enter-button").click();
+  await page.locator("#tree-door").click();
+  await page.locator("#letter-dialog").waitFor();
   await page.screenshot({
     path: fileURLToPath(new URL("letter-mobile.png", dir)),
   });

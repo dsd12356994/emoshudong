@@ -48,10 +48,12 @@ export function createApp(options = {}) {
     "/": "text/html; charset=utf-8",
     "/app.js": "text/javascript; charset=utf-8",
     "/world.js": "text/javascript; charset=utf-8",
+    "/cat-companion.js": "text/javascript; charset=utf-8",
     "/style.css": "text/css; charset=utf-8",
     "/favicon.svg": "image/svg+xml",
     "/assets/garden.webp": "image/webp",
     "/assets/cat.webp": "image/webp",
+    "/assets/cat-run.webp": "image/webp",
   };
   const assets = new Map(
     Object.keys(types).map((url) => [

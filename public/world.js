@@ -1,6 +1,26 @@
+import { createCatCompanion } from "/cat-companion.js";
 const $ = (id) => document.getElementById(id);
 const reduced = matchMedia("(prefers-reduced-motion: reduce)");
-const fine = matchMedia("(hover: hover) and (pointer: fine)");
+let entering = false;
+function enterTree() {
+  if (entering || $("letter-dialog").open) return;
+  entering = true;
+  document.body.classList.add("entering-tree");
+  setTimeout(
+    () => {
+      $("letter-dialog").showModal();
+      document.body.classList.remove("entering-tree");
+      entering = false;
+    },
+    reduced.matches ? 0 : 220,
+  );
+}
+const companion = createCatCompanion({
+  element: $("garden-cat"),
+  garden: document.querySelector(".garden"),
+  door: $("tree-door"),
+  enter: enterTree,
+});
 let prefs = { color: "#f4dab0", motion: !reduced.matches };
 try {
   const saved = JSON.parse(localStorage.getItem("huisheng-garden") || "null");
@@ -47,6 +67,7 @@ for (let i = 0; i < 16; i++) {
 const cat = new Image();
 cat.src = "/assets/cat.webp";
 function colorCat(color) {
+  companion.setColor(color);
   if (!cat.complete || !cat.naturalWidth) return;
   const canvas = document.createElement("canvas");
   canvas.width = canvas.height = 96;
@@ -73,21 +94,9 @@ function colorCat(color) {
   ctx.putImageData(pixels, 0, 0);
   const src = canvas.toDataURL();
   document.querySelectorAll(".cat-image").forEach((img) => (img.src = src));
-  // Native CSS cursor remains visible above modal dialogs; hotspot is the upper-left ear.
-  const cursor = document.createElement("canvas");
-  cursor.width = cursor.height = 40;
-  cursor.getContext("2d").drawImage(canvas, 0, 0, 40, 40);
-  document.documentElement.style.setProperty(
-    "--cat-cursor",
-    `url("${cursor.toDataURL()}") 10 8, auto`,
-  );
-  document.body.classList.toggle("cat-pointer", fine.matches);
 }
 cat.onload = () => colorCat(prefs.color);
 if (cat.complete) colorCat(prefs.color);
-fine.addEventListener("change", () =>
-  document.body.classList.toggle("cat-pointer", fine.matches),
-);
 $("cat-color").value = prefs.color;
 $("cat-color").oninput = (e) => colorCat(e.target.value);
 document.querySelectorAll("[data-color]").forEach(
@@ -114,12 +123,9 @@ try {
   firstVisit = !localStorage.getItem("huisheng-garden");
 } catch {}
 if (firstVisit) $("cat-dialog").showModal();
-document.querySelectorAll("[data-enter]").forEach(
-  (button) =>
-    (button.onclick = () => {
-      $("letter-dialog").showModal();
-    }),
-);
+document
+  .querySelectorAll("[data-enter]")
+  .forEach((button) => (button.onclick = enterTree));
 let libraryLoaded = false;
 $("library-open").onclick = async () => {
   $("library-dialog").showModal();

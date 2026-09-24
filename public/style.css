@@ -206,23 +206,8 @@ input[type="radio"] {
   line-height: 1.8;
   color: #89775f;
 }
-.enter-button {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 14px 17px;
-  margin-top: 22px;
-  background: #58674d;
-  color: #fff6e8;
-  border: 1px solid #354b38;
-  box-shadow: inset 0 0 0 2px #d4d7a929;
-  font-size: 14px;
-  letter-spacing: 2px;
-}
-.enter-button > span:first-child {
-  font-size: 20px;
-}
+
+
 .private-note {
   display: block;
   text-align: center;
@@ -283,62 +268,162 @@ input[type="radio"] {
 }
 .tree-door {
   position: absolute;
-  left: 77.2%;
-  top: 37%;
-  width: 10%;
-  height: 18%;
+  left: 78.6%;
+  top: 36.7%;
+  width: 7.6%;
+  height: 14.4%;
   background: transparent;
-  border-radius: 50%;
+  border-radius: 48% 52% 44% 48%;
   padding: 0;
   z-index: 2;
+  clip-path: ellipse(50% 50% at 50% 50%);
 }
 .door-glow {
   position: absolute;
-  inset: 0;
+  inset: 8%;
   border-radius: 50%;
-  box-shadow: 0 0 28px 7px #ffcf6933;
-  transition: box-shadow 0.2s;
+  background: radial-gradient(ellipse, #ffcb7020, transparent 70%);
+  opacity: 0.4;
+  transition:
+    opacity 0.25s,
+    box-shadow 0.25s;
 }
 .tree-door:hover .door-glow,
-.tree-door:focus-visible .door-glow {
-  box-shadow: 0 0 35px 10px #ffcf6980;
+.tree-door:focus-visible .door-glow,
+.tree-door.drop-ready .door-glow {
+  opacity: 1;
+  box-shadow: inset 0 0 20px #f3bd5655;
 }
-.door-label {
+.tree-door:focus-visible {
+  outline: 0;
+  box-shadow:
+    inset 0 0 0 3px #f3d99b,
+    inset 0 0 25px #eeb76188;
+}
+.door-inscription {
   position: absolute;
-  bottom: -44px;
-  left: 50%;
-  transform: translateX(-50%);
+  inset: 17% 3%;
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 12px;
-  white-space: nowrap;
-  background: #fff4dff5;
-  border: 1px solid #a88f62;
-  box-shadow: 3px 3px 0 #3d362449;
-  padding: 11px 16px;
-  font-size: 13px;
-  color: #6c573a;
-  letter-spacing: 1px;
+  justify-content: center;
+  gap: 8px;
+  color: #ffe7b2;
+  text-shadow: 0 2px 5px #211004;
+  transition: transform 0.2s;
 }
-.door-label:before {
-  content: "";
-  position: absolute;
-  top: -7px;
-  left: 50%;
-  height: 12px;
-  width: 12px;
-  background: #fff4df;
-  border-top: 1px solid #a88f62;
-  border-left: 1px solid #a88f62;
-  transform: translateX(-50%) rotate(45deg);
+.door-inscription > span {
+  font-size: 23px;
+  line-height: 1;
 }
-.door-label > span {
-  font-size: 19px;
-  color: var(--rose);
-}
-.door-label b {
-  font-size: 16px;
+.door-inscription b {
+  font:
+    17px/1.4 "KaiTi",
+    "SimSun",
+    serif;
+  letter-spacing: 3px;
   font-weight: 400;
+  white-space: nowrap;
+}
+.door-inscription small {
+  font-size: 9px;
+  letter-spacing: 2px;
+  color: #ecd0a1;
+  opacity: 0.7;
+}
+.tree-door:hover .door-inscription,
+.tree-door.drop-ready .door-inscription {
+  transform: translateY(-3px);
+}
+.entering-tree .door-glow {
+  opacity: 1;
+  box-shadow: inset 0 0 35px #ffe2a6aa;
+}
+.entering-tree .world {
+  scale: 1.018;
+  transition: scale 0.22s ease-in;
+  transform-origin: 82.4% 43.9%;
+}
+.cat-guide {
+  display: block;
+  font-size: 10px;
+  color: #968366;
+  line-height: 1.8;
+  margin-top: 18px;
+  padding-top: 14px;
+  border-top: 1px solid #dccbad;
+}
+.garden-caption .private-note {
+  margin-top: 16px;
+  text-align: left;
+  font-size: 9px;
+}
+.garden-cat {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 80px;
+  height: 80px;
+  padding: 0;
+  background: transparent;
+  z-index: 5;
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  will-change: transform;
+}
+.garden-cat canvas {
+  position: absolute;
+  inset: 0;
+  width: 80px;
+  height: 80px;
+  pointer-events: none;
+  image-rendering: pixelated;
+  transform-origin: 50% 25%;
+}
+.cat-shadow {
+  position: absolute;
+  width: 33px;
+  height: 8px;
+  bottom: 7px;
+  left: 24px;
+  border-radius: 50%;
+  background: #18351e44;
+  filter: blur(2px);
+  pointer-events: none;
+  transition:
+    transform 0.15s,
+    opacity 0.15s;
+}
+.garden-cat.is-dragging {
+  cursor: grabbing;
+}
+.garden-cat.is-dragging .cat-shadow {
+  transform: translateY(10px) scale(0.7);
+  opacity: 0.5;
+}
+body:has(dialog[open]) .garden-cat {
+  visibility: hidden;
+}
+#cat-target {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 5px;
+  height: 5px;
+  margin: -2px 0 0 -2px;
+  border: 1px solid #78544799;
+  border-radius: 50%;
+  background: #ffecc9;
+  z-index: 6;
+  pointer-events: none;
+}
+@media (hover: hover) and (pointer: fine) {
+  .garden.cat-active,
+  .garden.cat-active .tree-door {
+    cursor: none;
+  }
 }
 .petals {
   position: absolute;
@@ -381,18 +466,6 @@ body:has(dialog[open]) .petals i {
   100% {
     transform: translate3d(var(--drift), 120svh, 0) rotate(400deg);
     opacity: 0;
-  }
-}
-@media (hover: hover) and (pointer: fine) {
-  body.cat-pointer,
-  body.cat-pointer button,
-  body.cat-pointer a {
-    cursor: var(--cat-cursor, auto);
-  }
-  body.cat-pointer textarea,
-  body.cat-pointer
-    input:not([type="checkbox"]):not([type="radio"]):not([type="color"]) {
-    cursor: text;
   }
 }
 /* The letter is a normal accessible document over the garden, not a canvas UI. */
@@ -1091,11 +1164,19 @@ textarea:focus-visible {
     font-size: 11px;
     gap: 5px;
   }
-  .tree-door .door-label {
-    font-size: 11px;
-    gap: 7px;
-    padding: 9px 10px;
-    bottom: -10px;
+  .door-inscription b {
+    font-size: 14px;
+    letter-spacing: 2px;
+  }
+  .door-inscription > span {
+    font-size: 20px;
+  }
+  .door-inscription small {
+    font-size: 8px;
+    letter-spacing: 1px;
+  }
+  .door-inscription {
+    gap: 5px;
   }
   .garden-caption {
     left: 20px;
@@ -1118,11 +1199,7 @@ textarea:focus-visible {
   .garden-caption p {
     font-size: 11px;
   }
-  .enter-button {
-    margin-top: 12px;
-    padding: 11px 14px;
-    font-size: 12px;
-  }
+
   .private-note {
     font-size: 8px;
     margin-top: 9px;

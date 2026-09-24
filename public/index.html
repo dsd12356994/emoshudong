@@ -10,7 +10,7 @@
     />
     <title>回声 · 桃花小院</title>
     <link rel="icon" href="/favicon.svg" />
-    <link rel="preload" as="image" href="/assets/garden.webp" />
+    <link rel="preload" as="image" href="/assets/garden.webp?v=hollow2" />
     <link rel="stylesheet" href="/style.css" />
     <script src="/app.js" defer></script>
     <script type="module" src="/world.js"></script>
@@ -20,7 +20,7 @@
       <div class="world" id="world">
         <img
           class="garden-art"
-          src="/assets/garden.webp"
+          src="/assets/garden.webp?v=hollow2"
           width="1586"
           height="992"
           alt="绿草环绕的木屋、小菜园与右侧开满粉色桃花的大树，石子路通向暖亮的树洞。"
@@ -31,15 +31,26 @@
           data-enter
           aria-label="走进桃树的树洞，写一封信"
         >
-          <span class="door-glow" aria-hidden="true"></span
-          ><span class="door-label"
-            ><span aria-hidden="true">✉</span> 把心事寄到这里
-            <b aria-hidden="true">↗</b></span
+          <span class="door-glow" aria-hidden="true"></span>
+          <span class="door-inscription"
+            ><span aria-hidden="true">✉</span><b>写一封信</b
+            ><small>走进树洞</small></span
           >
         </button>
       </div>
       <div class="vignette" aria-hidden="true"></div>
       <div class="petals" id="petals" aria-hidden="true"></div>
+      <span id="cat-target" aria-hidden="true" hidden></span>
+      <button
+        id="garden-cat"
+        class="garden-cat"
+        aria-label="小猫，可以拖动；也可以用方向键移动"
+        title="按住拖动小猫，也可以把它送进树洞"
+        hidden
+      >
+        <span class="cat-shadow" aria-hidden="true"></span
+        ><canvas width="128" height="128" aria-hidden="true"></canvas>
+      </button>
       <header class="garden-header">
         <a class="brand" href="/" aria-label="回声，桃花小院"
           ><span class="brand-seal">回<br />声</span
@@ -55,11 +66,9 @@
       <section class="garden-caption">
         <span class="overline">有些话，风会替你保管。</span>
         <h1>在这里，<br />心事可以慢慢说。</h1>
-        <p>走进桃树的树洞，给自己一封回信。</p>
-        <button class="enter-button" data-enter>
-          <span aria-hidden="true">✉</span> 给树洞写信
-          <span aria-hidden="true">→</span></button
-        ><span class="private-note">AI 陪伴 · 对话不在本站保存</span>
+        <p>点一下桃树里的洞口，就能写信。</p>
+        <span class="cat-guide">移动鼠标，小猫会跟上来 · 按住它试试</span>
+        <span class="private-note">AI 陪伴 · 对话不在本站保存</span>
       </section>
       <footer class="garden-footer">
         <span class="garden-location"
@@ -209,7 +218,9 @@
           height="120"
         />
         <h2 id="cat-title">变成一只小猫，<br />来小院走走吧。</h2>
-        <p>给小猫挑个喜欢的颜色。<br />移动鼠标，它就会陪着你。</p>
+        <p>
+          给小猫挑个喜欢的颜色。<br />移动鼠标，它会跑过来。<br />按住小猫，还能拖着走。
+        </p>
         <div class="cat-swatches" aria-label="预设毛色">
           <button
             type="button"
