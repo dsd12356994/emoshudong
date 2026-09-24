@@ -1,6 +1,7 @@
 [
   {
     "id": "nhs-thoughts",
+    "modes": ["advice"],
     "domain": "psychology",
     "title": "把事实和猜测分开",
     "publisher": "NHS · Every Mind Matters",
@@ -31,6 +32,7 @@
   },
   {
     "id": "nhs-relationships",
+    "modes": ["advice"],
     "domain": "psychology",
     "title": "在关系里表达，也保留边界",
     "publisher": "NHS · Every Mind Matters",
@@ -61,6 +63,7 @@
   },
   {
     "id": "nhs-worry",
+    "modes": ["advice"],
     "domain": "psychology",
     "title": "给反复担忧留一个小空档",
     "publisher": "NHS · Every Mind Matters",
@@ -88,6 +91,7 @@
   },
   {
     "id": "who-stress",
+    "modes": ["listen", "advice"],
     "domain": "psychology",
     "title": "压力自助，从很小的练习开始",
     "publisher": "World Health Organization",
@@ -100,6 +104,7 @@
   },
   {
     "id": "who-pfa",
+    "modes": ["listen", "advice"],
     "domain": "psychology",
     "title": "支持一个正经历困难的人",
     "publisher": "World Health Organization",
@@ -111,7 +116,81 @@
     "summary": "心理急救强调面对严重困难时的人道、支持性和实际帮助，并尊重人的尊严、文化与能力。本产品只借鉴这种支持原则，紧急危险应优先连接现实中的帮助。"
   },
   {
+    "id": "mint-listening",
+    "domain": "psychology",
+    "kind": "communication",
+    "modes": ["listen", "advice"],
+    "title": "认真倾听，把选择留给来信的人",
+    "publisher": "MINT · Motivational Interviewing Network of Trainers",
+    "url": "https://motivationalinterviewing.org/node/11216",
+    "section": "Understanding Motivational Interviewing · Core elements",
+    "evidence": "沟通方法说明；只借鉴倾听与合作原则，不等于实施动机式访谈治疗",
+    "reviewed": "2026-09-24",
+    "keywords": [
+      "倾听",
+      "听我说",
+      "理解",
+      "不想建议",
+      "矛盾",
+      "犹豫",
+      "选择",
+      "自主",
+      "陪伴"
+    ],
+    "summary": "沟通可以从复述与核对理解开始，尊重当事人的经验和选择。接纳不等于同意所有判断；是否进入计划，要看对方此刻的需要和准备程度。这里借鉴交流原则，不要求每次倾诉都走向改变。"
+  },
+  {
+    "id": "neff-self-compassion",
+    "domain": "psychology",
+    "kind": "self-compassion",
+    "modes": ["listen", "advice"],
+    "title": "难过的时候，也可以善待自己",
+    "publisher": "Kristin Neff · Self-Compassion",
+    "url": "https://self-compassion.org/what-is-self-compassion/",
+    "section": "Self-kindness / Common humanity / Mindfulness",
+    "evidence": "研究者面向公众的概念说明；不是对个体的疗效保证",
+    "reviewed": "2026-09-24",
+    "keywords": [
+      "自我关怀",
+      "自责",
+      "不够好",
+      "没用",
+      "什么都做不好",
+      "失败",
+      "苛责",
+      "羞愧",
+      "温柔",
+      "配不上"
+    ],
+    "summary": "遇到挫折时，可以留意痛苦，也给自己一些理解，而不只用责备回应。人的局限与不完美并不罕见，但每个人的难处仍有区别。善待自己不必靠证明比别人优秀，也不等于放弃改变。"
+  },
+  {
+    "id": "who-values-kindness",
+    "domain": "psychology",
+    "modes": ["listen", "advice"],
+    "title": "为感受留一点位置，照顾在意的事",
+    "publisher": "World Health Organization",
+    "url": "https://www.who.int/thailand/activities/doing-what-matters-in-times-of-stress",
+    "section": "Doing What Matters in Times of Stress · Overview of five skills",
+    "evidence": "WHO 官方主题概览；不是哲学定论或完整治疗流程",
+    "reviewed": "2026-09-24",
+    "keywords": [
+      "意义",
+      "迷茫",
+      "价值",
+      "在意",
+      "接纳",
+      "遗憾",
+      "难受",
+      "善意",
+      "情绪",
+      "放不下"
+    ],
+    "summary": "指南介绍把注意力带回当下、松开对困难想法的纠缠、按价值行动、给情绪留空间及善意等方向。可把它们作为面对压力时的参考；不要求一个人先消除所有难受，才有资格照顾自己在意的生活。"
+  },
+  {
     "id": "sanming-context",
+    "modes": ["listen", "advice"],
     "domain": "bazi",
     "title": "《三命通会》：先了解文本的边界",
     "publisher": "维基文库 · 四库全书本",
@@ -124,6 +203,7 @@
   },
   {
     "id": "ditiansui-symbols",
+    "modes": ["listen", "advice"],
     "domain": "bazi",
     "title": "《滴天髓》：自然意象是一种比喻",
     "publisher": "维基文库 · 滴天髓辑要",

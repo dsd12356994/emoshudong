@@ -3,6 +3,7 @@ import { dismissArrival } from "./arrival-helper.mjs";
 import assert from "node:assert/strict";
 import { mkdirSync } from "node:fs";
 import { fileURLToPath } from "node:url";
+import { catalog } from "../lib/agent.mjs";
 const browser = await chromium.launch({ channel: "msedge", headless: true });
 const base = process.env.TEST_URL || "http://127.0.0.1:3180";
 const dir = new URL("../test-results/", import.meta.url);
@@ -90,7 +91,10 @@ try {
   await page.locator('[data-close="letter-dialog"]').click();
   await page.locator("#library-open").click();
   await page.locator(".library-list article").first().waitFor();
-  assert.equal(await page.locator(".library-list article").count(), 7);
+  assert.equal(
+    await page.locator(".library-list article").count(),
+    catalog.length,
+  );
   await page.locator('[data-close="library-dialog"]').click();
   await page.locator("#privacy-open").click();
   await page.getByRole("button", { name: "我知道了" }).click();

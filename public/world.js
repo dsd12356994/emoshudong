@@ -155,7 +155,15 @@ $("library-open").onclick = async () => {
       tag.textContent =
         card.domain === "bazi"
           ? "传统文化 · 非科学预测"
-          : "情绪支持 · 公共健康指南";
+          : card.kind === "communication"
+            ? "情绪支持 · 沟通方法参考"
+            : card.kind === "self-compassion"
+              ? "情绪支持 · 自我关怀概念"
+              : "情绪支持 · 公共健康指南";
+      if (card.domain !== "bazi")
+        tag.textContent += card.modes.includes("listen")
+          ? " · 倾听与建议"
+          : " · 一起想办法";
       const h = document.createElement("h3");
       h.textContent = card.title;
       const p = document.createElement("p");
