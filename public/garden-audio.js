@@ -10,7 +10,7 @@ const gaps = {
   close: 450,
   send: 1000,
   success: 1100,
-  pet: 1800,
+  meow: 10000,
   feed: 1400,
 };
 let preferences = {
@@ -41,6 +41,7 @@ let musicOn = false,
 let failure = "";
 const buffers = new Map(),
   lastPlayed = new Map(),
+  pendingEffects = new Set(),
   voices = new Set();
 function save() {
   try {
@@ -208,8 +209,12 @@ export async function playSound(name, rate = 1) {
     return;
   const requested = performance.now();
   const generation = effectsGeneration;
-  if (requested - (lastPlayed.get(name) ?? -Infinity) < gaps[name]) return;
-  lastPlayed.set(name, requested);
+  if (
+    pendingEffects.has(name) ||
+    requested - (lastPlayed.get(name) ?? -Infinity) < gaps[name]
+  )
+    return;
+  pendingEffects.add(name);
   try {
     const audioContext = ensureContext();
     if (audioContext.state !== "running") return;
@@ -218,6 +223,7 @@ export async function playSound(name, rate = 1) {
     if (
       generation !== effectsGeneration ||
       !preferences.effects ||
+      preferences.effectsVolume === 0 ||
       document.hidden ||
       context.state !== "running" ||
       performance.now() - requested > 900 ||
@@ -234,8 +240,13 @@ export async function playSound(name, rate = 1) {
       source.disconnect();
     };
     source.start();
+    // Cooldown starts only when a sound plays. Muted, failed or skipped requests
+    // don't consume it, and repeated petting never postpones the next meow.
+    lastPlayed.set(name, performance.now());
   } catch {
     /* An unavailable effect must never block an interaction. */
+  } finally {
+    pendingEffects.delete(name);
   }
 }
 function unlock(event) {

@@ -73,7 +73,7 @@ export function createApp(options = {}) {
     "/assets/audio/forget-me-not.mp3": "audio/mpeg",
     "/assets/audio/a-simple-trifle.mp3": "audio/mpeg",
     ...Object.fromEntries(
-      ["tap", "paper", "open", "close", "send", "success", "pet", "feed"].map(
+      ["tap", "paper", "open", "close", "send", "success", "meow", "feed"].map(
         (name) => [`/assets/audio/${name}.wav`, "audio/wav"],
       ),
     ),

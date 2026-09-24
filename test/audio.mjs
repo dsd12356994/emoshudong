@@ -27,11 +27,25 @@ async function setup(mobile = false) {
       JSON.stringify({ color: "#f4dab0", motion: false }),
     );
     window.audioProbe = { contexts: [], sources: [] };
+    // Tag decoded buffers by URL so assertions count real meows, not UI cues.
+    const files = new WeakMap();
+    const arrayBuffer = Response.prototype.arrayBuffer;
+    Response.prototype.arrayBuffer = async function () {
+      const data = await arrayBuffer.call(this);
+      files.set(data, new URL(this.url).pathname);
+      return data;
+    };
     const NativeAudioContext = window.AudioContext;
     window.AudioContext = class extends NativeAudioContext {
       constructor(...args) {
         super(...args);
         window.audioProbe.contexts.push(this);
+      }
+      async decodeAudioData(data) {
+        const file = files.get(data);
+        const buffer = await super.decodeAudioData(data);
+        files.set(buffer, file);
+        return buffer;
       }
       createBufferSource() {
         const source = super.createBufferSource();
@@ -45,6 +59,8 @@ async function setup(mobile = false) {
           stop = source.stop.bind(source);
         source.start = (...args) => {
           record.loop = source.loop;
+          record.file = files.get(source.buffer);
+          record.at = performance.now();
           record.duration = source.buffer?.duration;
           record.nonzero = source.buffer
             ?.getChannelData(0)
@@ -79,6 +95,11 @@ const liveMusic = (page) =>
   );
 const sounds = (page) =>
   page.evaluate(() => audioProbe.sources.filter((s) => !s.loop).length);
+const meows = (page) =>
+  page.evaluate(
+    () =>
+      audioProbe.sources.filter((s) => s.file?.endsWith("/meow.wav")).length,
+  );
 try {
   const page = await setup();
   const fetched = [];
@@ -154,22 +175,46 @@ try {
   assert.ok(Math.abs(desktopTitle.x + desktopTitle.width / 2 - 720) < 2);
   await expect.poll(() => sounds(page)).toBeGreaterThan(0);
   await page.locator('[data-pet="head"]').click();
-  await expect
-    .poll(() => fetched.some((url) => url.endsWith("pet.wav")))
-    .toBe(true);
-  const count = await sounds(page);
+  await expect.poll(() => meows(page)).toBe(1);
+  assert.ok(
+    await page.evaluate(() =>
+      audioProbe.sources.some(
+        (s) => s.file?.endsWith("/meow.wav") && s.nonzero && s.duration === 1,
+      ),
+    ),
+  );
   await page.evaluate(async () => {
     const { playSound } = await import("/garden-audio.js");
-    await Promise.all(Array.from({ length: 20 }, () => playSound("pet")));
+    await Promise.all(Array.from({ length: 20 }, () => playSound("meow")));
   });
-  assert.ok(
-    (await sounds(page)) <= count + 1,
-    "petting cannot stack a burst of tones",
-  );
+  assert.equal(await meows(page), 1, "rapid interactions cannot stack meows");
+  for (const part of ["tail", "belly", "paw"]) {
+    await page.waitForTimeout(800);
+    await page.locator(`[data-pet="${part}"]`).click();
+    await expect(page.locator("#room-cat")).toHaveAttribute(
+      "data-reaction",
+      part,
+    );
+    assert.equal(
+      await meows(page),
+      1,
+      "all body parts share a cooldown while animations still respond",
+    );
+  }
   await page.locator("#feed-cat").click();
   await expect
     .poll(() => fetched.some((url) => url.endsWith("feed.wav")))
     .toBe(true);
+  assert.equal(await meows(page), 1, "feeding shares the same meow cooldown");
+  await page.waitForFunction(
+    () =>
+      performance.now() -
+        audioProbe.sources.find((s) => s.file?.endsWith("/meow.wav")).at >=
+      10100,
+  );
+  assert.equal(await meows(page), 1, "ten seconds alone never triggers a meow");
+  await page.locator('[data-pet="head"]').click();
+  await expect.poll(() => meows(page)).toBe(2);
   await page.locator("#cottage-dialog [data-audio-settings]").click();
   await page.locator("#effects-switch").uncheck();
   await page.locator("#audio-dialog [data-close]").first().click();
@@ -267,7 +312,7 @@ try {
   await failed.close();
   assert.deepEqual(errors, []);
   console.log(
-    "Audio passed with real Web Audio decoding: opt-in/lazy music, two tracks, stop/switch, background suspension, independent effects, pet throttle, chat cues, persisted preferences without autoplay, mobile, cancellation and failure retry. No paid model requests.",
+    "Audio passed with real Web Audio decoding: opt-in/lazy music, two tracks, stop/switch, background suspension, independent effects, shared ten-second meow cooldown without automatic replay, continued pet animations, chat cues, persisted preferences without autoplay, mobile, cancellation and failure retry. No paid model requests.",
   );
 } finally {
   await browser.close();

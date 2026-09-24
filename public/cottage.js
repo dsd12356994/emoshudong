@@ -144,7 +144,7 @@ export function createCottage() {
     lastPet = performance.now();
     state = petAction(state, "pet", now());
     react(part, responses[part]);
-    playSound("pet", { head: 1, belly: 0.94, paw: 1.1, tail: 0.88 }[part]);
+    playSound("meow");
     persist(true);
   }
   let pointer;
@@ -173,6 +173,7 @@ export function createCottage() {
     state = petAction(state, "feed", now());
     react("feed", "啊呜，今天也吃得刚刚好。谢谢你呀！");
     playSound("feed");
+    playSound("meow");
     persist(true);
   };
   function openRoom() {

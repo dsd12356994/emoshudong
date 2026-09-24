@@ -44,9 +44,12 @@ with zipfile.ZipFile(archive) as package:
     for source_name, output in {
         "click_001": "tap", "scroll_001": "paper", "open_001": "open",
         "close_001": "close", "maximize_001": "send", "confirmation_001": "success",
-        "pluck_001": "pet", "drop_002": "feed",
+        "drop_002": "feed",
     }.items():
         source = CACHE / (source_name + ".ogg")
         source.write_bytes(package.read("Audio/" + source.name))
         result.append(encode(source, output + ".wav", "highpass=f=100,lowpass=f=4500,loudnorm=I=-24:TP=-7:LRA=7,afade=t=in:d=0.008,areverse,afade=t=in:d=0.015,areverse", "-ac", "1", "-ar", "22050", "-c:a", "pcm_s16le"))
+# The source contains two soft calls; keep only the first, with quiet edges.
+source = download("cat_softmew.wav", "https://opengameart.org/sites/default/files/cat_softmew.wav")
+result.append(encode(source, "meow.wav", "atrim=start=0.28:end=1.28,asetpts=PTS-STARTPTS,highpass=f=180,lowpass=f=6500,loudnorm=I=-25:TP=-8:LRA=7,afade=t=in:d=0.015,areverse,afade=t=in:d=0.04,areverse", "-ac", "1", "-ar", "22050", "-c:a", "pcm_s16le"))
 print(json.dumps(result, indent=2))

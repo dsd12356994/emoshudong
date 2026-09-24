@@ -11,17 +11,18 @@
 
 ## 交互音效
 
-全部来自 [Kenney Interface Sounds 1.0](https://kenney.nl/assets/interface-sounds)，CC0。原包授权文字保存在 [licenses/kenney-interface-sounds.txt](licenses/kenney-interface-sounds.txt)，仅规范换行与空白。[CC0 说明](https://creativecommons.org/publicdomain/zero/1.0/)。
+界面提示音来自 [Kenney Interface Sounds 1.0](https://kenney.nl/assets/interface-sounds)，CC0。原包授权文字保存在 [licenses/kenney-interface-sounds.txt](licenses/kenney-interface-sounds.txt)，仅规范换行与空白。[CC0 说明](https://creativecommons.org/publicdomain/zero/1.0/)。
 
 - `click_001.ogg` → `tap.wav`：按钮的短轻点。
 - `scroll_001.ogg` → `paper.wav`：信纸、留言板与折纸声。
 - `open_001.ogg` / `close_001.ogg` → `open.wav` / `close.wav`：开门与收起界面。
 - `maximize_001.ogg` → `send.wav`：寄出信件。
 - `confirmation_001.ogg` → `success.wav`：收到回信、留言贴好时的确认。
-- `pluck_001.ogg` → `pet.wav`：抚摸时的轻拨音，按部位略微变化音高；这是界面音效，不是猫叫录音。
 - `drop_002.ogg` → `feed.wav`：喂食的短落点声。
 
-音效经高低通、响度调整与极短边缘淡化，转为单声道 22.05 kHz / 16-bit WAV，合计 98,914 字节。原始下载与完整素材包仅在被 Git 忽略的 `test-results/audio-source` 中，不打包发布。可运行 `python scripts/prepare-audio.py` 重新下载所选官方素材并用本机 ffmpeg 生成交付文件。
+猫叫来自 **Cat Purr & Meow — Kerzoven**：[作者发布页](https://opengameart.org/content/cat-purr-meow)，明确标注 CC0，作者说明为猫叫实录。选用 `cat_softmew.wav` 的 0.28–1.28 秒，保留第一声短叫，高低通及响度调整（目标 -25 LUFS，true peak -8 dB），首尾淡化，保持原始音高。输出 `meow.wav`，44,178 字节；原始文件 SHA256：`7de9fed4401b677ccbf072781182857d875093a8e9b5727fc21b38028cfd5a90`。
+
+音效均转为单声道 22.05 kHz / 16-bit WAV，合计 138,624 字节。原始下载与完整素材包仅在被 Git 忽略的 `test-results/audio-source` 中，不打包发布。可运行 `python scripts/prepare-audio.py` 重新下载所选官方素材并用本机 ffmpeg 生成交付文件。
 
 ## 播放边界
 
@@ -29,8 +30,10 @@
 
 所有音频按需从本站静态资源白名单加载，解码与混音在浏览器中完成。默认音乐压缩文件约 1.24 MB，32 kHz 单声道解码约 15.9 MB，服务器不进行实时音频计算。素材缓存一天；不将音乐加进首屏预加载。两首音乐可切换，只维持当前曲目及短暂淡出节点，没有播放器轮询或模型调用。
 
-同种音效有最短间隔，摸猫为 1.8 秒，同时最多三个短音效；下载延迟超过 900 ms 的提示音会丢弃，避免延迟堆叠。切后台会停止短音效并挂起 AudioContext，返回时恢复；关闭音效也会取消等待加载的旧声音。音乐载入中再次点音符可取消，失败可重试，不影响其他功能。
+摸头、肚皮、爪子、尾巴及喂食共用一个猫叫间隔：首次互动叫一声，从实际播放起计十秒，期间动作和状态照常响应，不重复叫；十秒后再次互动才叫，绝不定时自动播放。静音、加载失败和丢弃的请求不消耗间隔，连续互动也不延长间隔。
+
+其他同种音效也有最短间隔，同时最多三个短音效；下载延迟超过 900 ms 的提示音会丢弃，避免延迟堆叠。切后台会停止短音效并挂起 AudioContext，返回时恢复；关闭音效也会取消等待加载的旧声音。音乐载入中再次点音符可取消，失败可重试，不影响其他功能。
 
 ## 验证
 
-`node test/audio.mjs` 使用真实浏览器 Web Audio 解码素材，检查非静音数据、两首曲目的时长、手动开启与延迟加载、切换与停止、前后台挂起、独立音效开关、摸猫节流、回信提示、偏好保存且刷新不自动播、手机布局、取消加载与失败重试。聊天接口用合成响应，不调用付费模型。自动测试验证了播放与交互状态，不代替不同设备上的主观听感试听。
+`node test/audio.mjs` 使用真实浏览器 Web Audio 解码素材，检查非静音数据、两首曲目的时长、手动开启与延迟加载、切换与停止、前后台挂起、独立音效开关、不同抚摸部位与喂食共用十秒猫叫间隔且动作继续响应、到时不自动叫与再次互动才叫、回信提示、偏好保存且刷新不自动播、手机布局、取消加载与失败重试。聊天接口用合成响应，不调用付费模型。自动测试验证了播放与交互状态，不代替不同设备上的主观听感试听。
