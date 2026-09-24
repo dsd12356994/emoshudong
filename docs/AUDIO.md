@@ -20,9 +20,9 @@
 - `confirmation_001.ogg` → `success.wav`：收到回信、留言贴好时的确认。
 - `drop_002.ogg` → `feed.wav`：喂食的短落点声。
 
-猫叫来自 **Cat Purr & Meow — Kerzoven**：[作者发布页](https://opengameart.org/content/cat-purr-meow)，明确标注 CC0，作者说明为猫叫实录。选用 `cat_softmew.wav` 的 0.28–1.28 秒，保留第一声短叫，高低通及响度调整（目标 -25 LUFS，true peak -8 dB），首尾淡化，保持原始音高。输出 `meow.wav`，44,178 字节；原始文件 SHA256：`7de9fed4401b677ccbf072781182857d875093a8e9b5727fc21b38028cfd5a90`。
+猫叫来自 **cat meow — tuberatanka**：[作者发布页](https://freesound.org/people/tuberatanka/sounds/110011/)，明确标注 CC0，作者说明为自己家猫的叫声。采用发布页公开的高质量 MP3 预览，保留约 1.545 秒的完整录音，不裁切、不变调、不做高低通或音色处理；仅降低 9 dB 音量并转为单声道 44.1 kHz / 16-bit WAV。输出 `cat-meow.wav`，136,304 字节；下载文件 SHA256：`2890268279c76f06dc0b7c2b59313becf63a152a1addcede5ee5161cee9eb45a`。新文件名避免浏览器继续使用旧音频缓存。
 
-音效均转为单声道 22.05 kHz / 16-bit WAV，合计 138,624 字节。原始下载与完整素材包仅在被 Git 忽略的 `test-results/audio-source` 中，不打包发布。可运行 `python scripts/prepare-audio.py` 重新下载所选官方素材并用本机 ffmpeg 生成交付文件。
+界面提示音为单声道 22.05 kHz / 16-bit WAV，猫叫保留 44.1 kHz 采样率，所有短音效合计 230,750 字节。原始下载与完整素材包仅在被 Git 忽略的 `test-results/audio-source` 中，不打包发布。可运行 `python scripts/prepare-audio.py` 重新下载所选官方素材并用本机 ffmpeg 生成交付文件。
 
 ## 播放边界
 

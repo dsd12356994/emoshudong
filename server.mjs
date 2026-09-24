@@ -72,8 +72,9 @@ export function createApp(options = {}) {
     "/garden-audio.css": "text/css; charset=utf-8",
     "/assets/audio/forget-me-not.mp3": "audio/mpeg",
     "/assets/audio/a-simple-trifle.mp3": "audio/mpeg",
+    "/assets/audio/cat-meow.wav": "audio/wav",
     ...Object.fromEntries(
-      ["tap", "paper", "open", "close", "send", "success", "meow", "feed"].map(
+      ["tap", "paper", "open", "close", "send", "success", "feed"].map(
         (name) => [`/assets/audio/${name}.wav`, "audio/wav"],
       ),
     ),

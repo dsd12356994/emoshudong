@@ -218,7 +218,7 @@ export async function playSound(name, rate = 1) {
   try {
     const audioContext = ensureContext();
     if (audioContext.state !== "running") return;
-    const buffer = await load(name + ".wav");
+    const buffer = await load(name === "meow" ? "cat-meow.wav" : name + ".wav");
     // Never queue a burst of delayed effects after a slow download or tab switch.
     if (
       generation !== effectsGeneration ||

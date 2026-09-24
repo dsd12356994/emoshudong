@@ -98,7 +98,8 @@ const sounds = (page) =>
 const meows = (page) =>
   page.evaluate(
     () =>
-      audioProbe.sources.filter((s) => s.file?.endsWith("/meow.wav")).length,
+      audioProbe.sources.filter((s) => s.file?.endsWith("/cat-meow.wav"))
+        .length,
   );
 try {
   const page = await setup();
@@ -179,7 +180,11 @@ try {
   assert.ok(
     await page.evaluate(() =>
       audioProbe.sources.some(
-        (s) => s.file?.endsWith("/meow.wav") && s.nonzero && s.duration === 1,
+        (s) =>
+          s.file?.endsWith("/cat-meow.wav") &&
+          s.nonzero &&
+          s.duration > 1.5 &&
+          s.duration < 1.6,
       ),
     ),
   );
@@ -209,7 +214,7 @@ try {
   await page.waitForFunction(
     () =>
       performance.now() -
-        audioProbe.sources.find((s) => s.file?.endsWith("/meow.wav")).at >=
+        audioProbe.sources.find((s) => s.file?.endsWith("/cat-meow.wav")).at >=
       10100,
   );
   assert.equal(await meows(page), 1, "ten seconds alone never triggers a meow");
