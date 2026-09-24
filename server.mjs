@@ -16,6 +16,11 @@ import {
   birthContext,
 } from "./lib/domain.mjs";
 import { runAgent, catalog, UpstreamError } from "./lib/agent.mjs";
+import {
+  createCommunity,
+  CommunityError,
+  nextGardenDay,
+} from "./lib/community.mjs";
 
 const root = dirname(fileURLToPath(import.meta.url));
 export function createApp(options = {}) {
@@ -23,6 +28,7 @@ export function createApp(options = {}) {
   const apiKey = env.DEEPSEEK_API_KEY?.trim();
   const dataDir = options.dataDir ?? join(root, "data");
   mkdirSync(dataDir, { recursive: true });
+  const community = createCommunity({ dataDir, now: options.now });
   const quotaFile = join(dataDir, "quota.json");
   let quota = {
     day: "",
@@ -50,6 +56,13 @@ export function createApp(options = {}) {
     "/world.js": "text/javascript; charset=utf-8",
     "/cat-companion.js": "text/javascript; charset=utf-8",
     "/intro-flight.js": "text/javascript; charset=utf-8",
+    "/cottage.js": "text/javascript; charset=utf-8",
+    "/pet-state.js": "text/javascript; charset=utf-8",
+    "/community.js": "text/javascript; charset=utf-8",
+    "/cottage.css": "text/css; charset=utf-8",
+    "/assets/room.webp": "image/webp",
+    "/assets/cat-rest.webp": "image/webp",
+    "/assets/glove.svg": "image/svg+xml",
     "/style.css": "text/css; charset=utf-8",
     "/favicon.svg": "image/svg+xml",
     "/assets/garden.webp": "image/webp",
@@ -122,9 +135,22 @@ export function createApp(options = {}) {
       });
     if (req.method === "GET" && url.pathname === "/api/library")
       return send(res, 200, { cards: catalog });
+    if (req.method === "GET" && url.pathname === "/api/community")
+      return send(res, 200, community.snapshot(req));
+    if (req.method === "GET" && url.pathname === "/api/garden-time") {
+      const now = (options.now || Date.now)();
+      return send(res, 200, { serverTime: now, resetAt: nextGardenDay(now) });
+    }
+    const communityPaths = [
+      "/api/account/register",
+      "/api/account/login",
+      "/api/account/logout",
+      "/api/board/post",
+      "/api/board/delete",
+    ];
     if (
       req.method !== "POST" ||
-      !["/api/chat", "/api/birth"].includes(url.pathname)
+      !["/api/chat", "/api/birth", ...communityPaths].includes(url.pathname)
     )
       return send(res, 404, { error: "没有找到这个页面。" });
     // Browser-only JSON calls, no CORS. Origin compares to the actual request authority.
@@ -148,6 +174,12 @@ export function createApp(options = {}) {
         chunks.push(chunk);
       }
       const body = JSON.parse(Buffer.concat(chunks).toString("utf8"));
+      if (communityPaths.includes(url.pathname))
+        return send(
+          res,
+          200,
+          await community.action(url.pathname, body, req, res),
+        );
       if (url.pathname === "/api/birth")
         return send(res, 200, { birth: birthContext(body) });
       const chat = validateChat(body);
@@ -197,12 +229,14 @@ export function createApp(options = {}) {
       if (!res.headersSent && !res.destroyed)
         send(
           res,
-          error instanceof InputError || error instanceof SyntaxError
-            ? 400
-            : 500,
+          error instanceof CommunityError
+            ? error.status
+            : error instanceof InputError || error instanceof SyntaxError
+              ? 400
+              : 500,
           {
             error:
-              error instanceof InputError
+              error instanceof InputError || error instanceof CommunityError
                 ? error.message
                 : "请求没有完成，请稍后重试。",
           },
@@ -211,6 +245,7 @@ export function createApp(options = {}) {
   });
   server.requestTimeout = 15000;
   server.headersTimeout = 10000;
+  server.on("close", () => community.close());
   return server;
 }
 if (

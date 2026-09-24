@@ -12,6 +12,7 @@
     <link rel="icon" href="/favicon.svg" />
     <link rel="preload" as="image" href="/assets/garden.webp?v=hollow2" />
     <link rel="stylesheet" href="/style.css" />
+    <link rel="stylesheet" href="/cottage.css" />
     <script src="/app.js" defer></script>
     <script type="module" src="/world.js"></script>
   </head>
@@ -35,6 +36,28 @@
           <span class="door-inscription"
             ><span aria-hidden="true">✉</span><b>写一封信</b
             ><small>走进树洞</small></span
+          >
+        </button>
+        <button
+          id="cottage-door"
+          class="cottage-door"
+          data-scene-control
+          aria-label="打开木屋的门，进去陪小猫"
+        >
+          <span class="cottage-glow" aria-hidden="true"></span
+          ><span class="cottage-leaf" aria-hidden="true"></span
+          ><span class="place-label">小猫的家</span>
+        </button>
+        <button
+          id="board-open"
+          class="board-sign"
+          data-scene-control
+          aria-label="打开木屋外的留言板"
+        >
+          <span class="board-roof" aria-hidden="true"></span
+          ><span class="board-sign-face"
+            ><i aria-hidden="true">✿</i><b>小院留言</b
+            ><small>把温柔留在这里</small></span
           >
         </button>
       </div>
@@ -63,6 +86,13 @@
           <div>春日 · 晴<small>适合慢慢来的一天</small></div>
         </div>
       </header>
+      <nav class="place-shortcuts" aria-label="小院去处" data-scene-control>
+        <button id="cottage-shortcut">⌂ 进小屋</button
+        ><button id="board-shortcut">▤ 留言板</button>
+      </nav>
+      <button id="guide-open" class="guide-open" data-scene-control>
+        <span aria-hidden="true">?</span> 使用指南
+      </button>
       <section class="garden-caption" id="intro-card">
         <div class="caption-copy">
           <span class="overline">有些话，风会替你保管。</span>
@@ -101,6 +131,270 @@
         </nav>
       </footer>
     </main>
+    <dialog
+      id="cottage-dialog"
+      class="cottage-dialog"
+      aria-labelledby="cottage-title"
+    >
+      <div class="room-world" aria-hidden="true"></div>
+      <header class="room-header">
+        <button class="room-back" data-close="cottage-dialog">← 回小院</button>
+        <div class="room-name">
+          <span class="overline">A SOFT PLACE TO LAND</span>
+          <h2 id="cottage-title">小猫的暖暖屋</h2>
+          <p>今天也只需要，舒舒服服地在一起。</p>
+        </div>
+        <button id="room-help" class="room-help" aria-label="查看小屋玩法">
+          ?
+        </button>
+      </header>
+      <section class="pet-status" aria-label="小猫状态">
+        <div class="pet-stat">
+          <div><span>♡ 心情</span><b id="mood-label">很安心</b></div>
+          <meter
+            id="mood-meter"
+            min="0"
+            max="100"
+            value="75"
+            aria-label="心情值"
+          >
+            75
+          </meter>
+        </div>
+        <div class="pet-stat">
+          <div><span>♧ 饥饿</span><b id="hunger-label">半饿</b></div>
+          <meter
+            id="hunger-meter"
+            min="0"
+            max="100"
+            value="50"
+            aria-label="饱腹程度"
+          >
+            50
+          </meter>
+        </div>
+        <div class="pet-stat">
+          <div><span>☀ 活跃</span><b id="activity-label">想去散步</b></div>
+          <meter
+            id="activity-meter"
+            min="0"
+            max="100"
+            value="70"
+            aria-label="活跃值"
+          >
+            70
+          </meter>
+        </div>
+      </section>
+      <div class="room-cat" id="room-cat" data-reaction="calm">
+        <p class="cat-thought" id="cat-thought" role="status">
+          你来啦，靠近一点也没关系。
+        </p>
+        <span class="sleep-symbol" aria-hidden="true">z z Z</span>
+        <canvas
+          id="resting-cat"
+          width="256"
+          height="256"
+          aria-hidden="true"
+        ></canvas>
+        <button
+          class="pet-spot pet-head"
+          data-pet="head"
+          aria-label="摸摸小猫的头"
+          title="摸摸头"
+        ></button>
+        <button
+          class="pet-spot pet-belly"
+          data-pet="belly"
+          aria-label="揉揉小猫的肚子"
+          title="揉揉肚子"
+        ></button>
+        <button
+          class="pet-spot pet-paw"
+          data-pet="paw"
+          aria-label="碰一碰小猫的爪子"
+          title="碰一碰爪爪"
+        ></button>
+        <button
+          class="pet-spot pet-tail"
+          data-pet="tail"
+          aria-label="轻轻摸小猫的尾巴"
+          title="摸摸尾巴"
+        ></button>
+        <span class="pet-hearts" aria-hidden="true">♡ ✧ ♡</span>
+      </div>
+      <button id="feed-cat" class="feed-cat" aria-describedby="ration-note">
+        <span class="food-bag" aria-hidden="true">♡</span
+        ><span class="food-bowl" aria-hidden="true"><i></i></span
+        ><b id="feed-label">今日猫粮 · 1 份</b><small>点击，给小猫开饭</small>
+      </button>
+      <aside class="room-note" id="room-note">
+        <button id="room-note-close" aria-label="收起小屋提示">×</button
+        ><span class="overline">欢迎回家</span>
+        <h3>摸摸它，也放松一下自己。</h3>
+        <p>
+          轻触或轻轻划过头、肚子、爪爪和尾巴，看看它的小反应。键盘 Tab
+          也能选择部位。
+        </p>
+        <p>吃一份猫粮就饱啦。想打瞌睡时，带它回院子跑一跑。</p>
+        <small>在桃花源，小猫永远平安，不会生病或离开。</small>
+      </aside>
+      <footer class="room-footer">
+        <span id="ration-note">每天都有一份小小的照顾</span
+        ><span id="ration-timer"></span>
+      </footer>
+    </dialog>
+    <dialog
+      id="board-dialog"
+      class="board-dialog"
+      aria-labelledby="board-title"
+    >
+      <div class="board-top">
+        <div>
+          <span class="overline">WORDS THAT STAY FOR A DAY</span>
+          <h2 id="board-title">小院留言板</h2>
+        </div>
+        <button data-close="board-dialog" aria-label="收起留言板">×</button>
+      </div>
+      <div class="board-whiteboard">
+        <p class="board-tip">
+          写一句今天想留下的话，可以署名，也可以做一只匿名的小猫。留言会公开展示，每天北京时间
+          00:00 清空。
+        </p>
+        <div class="board-meta">
+          <span id="board-count">正在整理纸条…</span
+          ><button id="board-refresh">刷新</button
+          ><span id="board-timer"></span>
+        </div>
+        <div
+          id="board-posts"
+          class="board-posts"
+          tabindex="0"
+          aria-label="今日留言，可滚动查看"
+        ></div>
+        <p id="board-status" class="board-status" role="status"></p>
+        <div class="board-account">
+          <span id="account-label">路过也可以先看看。</span
+          ><button id="account-open">登记 / 登录</button
+          ><button id="account-logout" hidden>退出</button>
+        </div>
+        <form id="board-form">
+          <label class="sr-only" for="board-message">写下你的留言</label
+          ><textarea
+            id="board-message"
+            maxlength="280"
+            rows="2"
+            placeholder="比如：今天的晚霞很好看，希望你也看见了。"
+            required
+          ></textarea>
+          <div class="board-compose">
+            <label
+              ><input id="board-anonymous" type="checkbox" checked />
+              匿名小猫</label
+            ><small id="board-counter">0 / 280</small
+            ><button class="primary" id="board-send" type="submit">
+              贴上纸条 ↗
+            </button>
+          </div>
+        </form>
+      </div>
+    </dialog>
+    <dialog
+      id="account-dialog"
+      class="account-dialog"
+      aria-labelledby="account-title"
+    >
+      <div class="dialog-heading">
+        <span class="overline">给小院留一个昵称</span
+        ><button data-close="account-dialog" aria-label="关闭登记窗口">
+          ×
+        </button>
+      </div>
+      <h2 id="account-title">认识一下，好吗？</h2>
+      <p>登记后就可以留言。只需昵称，不需要真实姓名。</p>
+      <div class="account-tabs" role="group" aria-label="选择注册或登录">
+        <button id="register-tab" aria-pressed="true">第一次来 · 注册</button
+        ><button id="login-tab" aria-pressed="false">已经有昵称 · 登录</button>
+      </div>
+      <form id="account-form">
+        <label
+          >昵称<input
+            id="account-nickname"
+            name="username"
+            autocomplete="username"
+            minlength="2"
+            maxlength="20"
+            placeholder="2–20 个字，比如桃花小猫"
+            required /></label
+        ><label
+          >密码<input
+            id="account-password"
+            name="password"
+            type="password"
+            autocomplete="new-password"
+            minlength="8"
+            maxlength="128"
+            placeholder="至少 8 个字符"
+            required
+        /></label>
+        <p class="account-notice">
+          请记好昵称和密码，当前试用版暂不提供密码找回。匿名仅隐藏对外署名，站内仍保留账号关联到当天清空。
+        </p>
+        <p id="account-status" role="status"></p>
+        <button id="account-submit" class="primary full" type="submit">
+          登记，成为小院邻居
+        </button>
+      </form>
+    </dialog>
+    <dialog
+      id="guide-dialog"
+      class="guide-dialog"
+      aria-labelledby="guide-title"
+    >
+      <div class="dialog-heading">
+        <div>
+          <span class="overline">慢慢来，每一处都可以停留</span>
+          <h2 id="guide-title">你的小院使用指南</h2>
+        </div>
+        <button data-close="guide-dialog" aria-label="关闭使用指南">×</button>
+      </div>
+      <ol class="guide-list">
+        <li>
+          <b>桃树 · 写一封信</b>
+          <p>点树干里的洞口，或把小猫拖进去，就能向 AI 树洞写信。</p>
+        </li>
+        <li>
+          <b>木屋 · 陪小猫歇一会儿</b>
+          <p>
+            点左侧木屋的门进入。白手套可以轻触小猫的头、肚子、爪子和尾巴；触屏轻点，键盘用
+            Tab 选择后按 Enter。
+          </p>
+        </li>
+        <li>
+          <b>每天一份猫粮，永远不用担心</b>
+          <p>
+            每天北京时间 00:00
+            刷新一份猫粮，不累积、不收费。没吃是半饿，吃了就饱。心情和活跃随时间慢慢下降；摸摸它恢复心情，在院子里跑动增加活跃。小猫不会生病、死亡或离开。
+          </p>
+        </li>
+        <li>
+          <b>留言板 · 只留一天的温柔</b>
+          <p>
+            点木屋旁的木板，登记昵称和密码后留言，可署名或匿名。白板可滚动，自己的纸条可以收回。每天北京时间
+            00:00 清空留言，账号保留。
+          </p>
+        </li>
+        <li>
+          <b>让这里更像你喜欢的样子</b>
+          <p>
+            底部“我的小猫”能换毛色，“花瓣”能暂停飘落，“纸条”能重播纸飞机。小猫状态保存在这台浏览器，不会跟账号同步。
+          </p>
+        </li>
+      </ol>
+      <button class="primary full" data-close="guide-dialog">
+        知道啦，去慢慢逛
+      </button>
+    </dialog>
     <dialog
       id="letter-dialog"
       class="letter-dialog"
@@ -343,7 +637,13 @@
       <p>回声是 AI 情感对话工具，不是真人咨询服务，也不能替代专业支持。</p>
       <h3>对话留在哪里？</h3>
       <p>
-        本站不将对话或生日写入数据库、访问日志或浏览器存储。浏览器只保存小猫颜色与花瓣动效偏好。内容暂存在当前页面内存中；刷新、关闭页面或开启新对话会清除页面中的记录。
+        本站不将树洞对话或生日写入数据库、访问日志或浏览器存储。浏览器保存小猫颜色、花瓣动效偏好和养猫状态。树洞对话暂存在当前页面内存中；刷新、关闭页面或开启新对话会清除页面中的记录。
+      </p>
+      <h3>账号和留言板</h3>
+      <p>
+        注册后服务器保存昵称和加盐密码散列，登录凭证放在 HttpOnly Cookie
+        中。留言公开展示，匿名仅隐藏对外昵称；站内保留作者关联以便收回纸条。留言每天北京时间
+        00:00 清空，账号保留。不要在公开留言里写私密信息。
       </p>
       <h3>谁会收到内容？</h3>
       <p>

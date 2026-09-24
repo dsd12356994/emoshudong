@@ -109,9 +109,10 @@ try {
     "mobile tree entrance must be fully visible",
   );
   assert.deepEqual(errors, []);
-  assert.deepEqual(await page.evaluate(() => Object.keys(localStorage)), [
-    "huisheng-garden",
-  ]);
+  assert.deepEqual(
+    await page.evaluate(() => Object.keys(localStorage).sort()),
+    ["huisheng-garden", "huisheng-pet"],
+  );
   assert.equal(
     await page.evaluate(
       () => JSON.parse(localStorage.getItem("huisheng-garden")).color,

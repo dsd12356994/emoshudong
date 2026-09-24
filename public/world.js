@@ -1,7 +1,11 @@
 import { createCatCompanion } from "/cat-companion.js";
 import { createIntroFlight } from "/intro-flight.js";
+import { createCottage } from "/cottage.js";
+import { createCommunityBoard } from "/community.js";
 const $ = (id) => document.getElementById(id);
 const reduced = matchMedia("(prefers-reduced-motion: reduce)");
+const cottage = createCottage();
+createCommunityBoard();
 let entering = false;
 function enterTree() {
   if (entering || $("letter-dialog").open) return;
@@ -21,6 +25,7 @@ const companion = createCatCompanion({
   garden: document.querySelector(".garden"),
   door: $("tree-door"),
   enter: enterTree,
+  onTravel: (distance) => cottage.play(distance),
 });
 let prefs = { color: "#f4dab0", motion: !reduced.matches };
 try {
@@ -69,6 +74,7 @@ const cat = new Image();
 cat.src = "/assets/cat.webp";
 function colorCat(color) {
   companion.setColor(color);
+  cottage.setColor(color);
   if (!cat.complete || !cat.naturalWidth) return;
   const canvas = document.createElement("canvas");
   canvas.width = canvas.height = 96;

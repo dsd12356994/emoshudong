@@ -11,6 +11,10 @@ const dialogs = [
   "letter-dialog",
   "cat-dialog",
   "library-dialog",
+  "cottage-dialog",
+  "board-dialog",
+  "account-dialog",
+  "guide-dialog",
 ];
 const today = new Date().toLocaleDateString("en-CA");
 for (const id of ["self-date", "other-date"]) $(id).max = today;

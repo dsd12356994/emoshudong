@@ -1,5 +1,5 @@
 // One small sprite canvas. Frames run only while moving; no idle render loop.
-export function createCatCompanion({ element, garden, door, enter }) {
+export function createCatCompanion({ element, garden, door, enter, onTravel }) {
   const canvas = element.querySelector("canvas");
   const ctx = canvas.getContext("2d");
   const atlas = new Image();
@@ -115,6 +115,7 @@ export function createCatCompanion({ element, garden, door, enter }) {
       velocityX = velocityY = 0;
     }
     const speed = Math.hypot(velocityX, velocityY);
+    if (travel > 0) onTravel?.(travel);
     const running = !drag && !reduced.matches && speed > 12;
     // Paws advance with ground covered rather than with a fixed clock.
     if (running) stride += travel / 21;
@@ -248,7 +249,9 @@ export function createCatCompanion({ element, garden, door, enter }) {
   garden.addEventListener("pointermove", (event) => {
     if (suspended || drag || !loaded) return;
     const isCat = element.contains(event.target);
-    const isControl = event.target.closest("header,footer,.garden-caption");
+    const isControl = event.target.closest(
+      "header,footer,.garden-caption,[data-scene-control]",
+    );
     if (event.pointerType !== "mouse" || !fine.matches || isControl) {
       hideMarker();
       return;

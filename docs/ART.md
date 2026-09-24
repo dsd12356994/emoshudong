@@ -29,3 +29,19 @@
 ## 纸条折飞机
 
 这次新增的是代码生成的简单纸面图形，不新增位图素材。纸条文字淡出后，四片同尺寸纸面沿折线收拢成飞机；动画根据当前提示卡与树洞的实际屏幕位置计算弧线、朝向及末段缩小。动画在浏览器完成，不向服务器发送请求。视觉阶段为可见阅读五秒、约一秒折叠、约两秒飞行，随后露出完整小院。
+
+## 小猫暖暖屋
+
+采用内置 imagegen 工具生成两张原创位图，用 `scripts/prepare-room.mjs` 通过浏览器 Canvas 仅做尺寸与 WebP 交付编码。原始生成图留在本机生成目录，不提交。最终素材：
+
+- `public/assets/room.webp`：1536 × 1024，350656 字节，木色房间、桃花窗景和中央空地毯。
+- `public/assets/cat-rest.webp`：512 × 512，169172 字节，2 × 2 透明表情图集，依次为平静、开心、想抱抱、困倦。
+- `public/assets/glove.svg`：代码绘制的小型白手套鼠标图标，非生成位图。留言木板、食盆、猫粮袋和状态栏同样用 HTML/CSS 绘制。
+
+房间最终生成提示词（内置工具，未使用 CLI/API 回退）：
+
+> Use case: stylized-concept. Asset type: background illustration for an interactive cozy pixel-art cat room, landscape 1536x1024. Create an original highly polished cozy farming-game cabin interior, warm natural honey oak wooden walls and floor, soft pink peach blossom atmosphere, top-down 3/4 video game perspective, crisp visible pixel art with crafted little details. Sunlight through a large wood window on the back wall shows pink peach blossoms outside, pale pink gingham curtains, small bookshelves, potted plants, a tiny tea table at the left perimeter, comfy blankets and cushions around the edges. Composition: center floor is spacious and uncluttered with one large oval dusty rose braided rug centered around x50%, y65%, for a separately rendered interactive lying cat. No cat or other animals anywhere in the image. Leave central rug empty. Small bowl and food will be separate interactive HTML elements so do not draw bowls or food. Warm cream and dusty pink highlights, rich dark brown pixel outlines, natural wood remains brown, magical safe welcoming atmosphere. Fill the entire wide image with the room, no cutaway void, no text, no letters, no interface or labels, no watermark. Decorative details concentrated around edges, readable spacious central floor.
+
+小猫表情最终生成提示词（内置工具，未使用 CLI/API 回退）：
+
+> Use case: stylized-concept. Asset type: transparent 2 by 2 sprite atlas for an original cozy pixel-art virtual cat game. Square image, exactly four equal square cells with no gutters, no gridlines, no text, no shadows outside sprites. The same adorable cream white kitten with peach ears and visible dark cocoa outlines in each cell, soft chunky crisp pixel illustration. Every cell shows full cat in IDENTICAL RESTING LYING position and identical size/location: head at left-front at cell x30% y51%, plump body extends toward right at x60% y58%, front paws near x28% y72%, curled tail at far right x82% y60%. Cat occupies inner80% cell width, centered, with generous transparent margin. All four cells change FACIAL EXPRESSION ONLY: top left normal gentle relaxed awake eyes, top right delighted smiling crescent eyes and tiny smiling mouth, bottom left endearing slightly droopy sad kitten eyes (gentle wanting a cuddle, NOT crying or suffering), bottom right closed eyes sleepy peaceful dozing. No accessories, no hearts, no floating symbols, no environmental items, no ground plane, no background color. Genuine alpha transparent background for all cells. Cream white fur should be nearly grayscale warm cream to permit runtime recoloring. Keep matching body silhouette exactly in four frames.
