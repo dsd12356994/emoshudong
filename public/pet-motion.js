@@ -11,6 +11,32 @@ export function createPetMotion(canvas) {
     const t = Math.max(0, Math.min(1, (n - a) / (b - a)));
     return t * t * (3 - 2 * t);
   };
+  // Trace the happy sprite's haunch and curled tail join, including its dark
+  // outline. A rectangular selection also contains the belly and pulls it out
+  // of shape. Keep this boundary and the low tail root completely stationary.
+  const tailJoin = [
+    [122, 211],
+    [139, 212],
+    [146, 215],
+    [156, 218],
+    [167, 225],
+    [174, 223],
+    [181, 219],
+    [190, 212],
+    [220, 212],
+  ];
+  const tailEdge = new Float32Array(canvas.height);
+  for (let y = 0; y < canvas.height; y++) {
+    tailEdge[y] = canvas.width;
+    for (let i = 1; i < tailJoin.length; i++) {
+      const [y0, x0] = tailJoin[i - 1],
+        [y1, x1] = tailJoin[i];
+      if (y >= y0 && y <= y1) {
+        tailEdge[y] = x0 + ((x1 - x0) * (y - y0)) / (y1 - y0);
+        break;
+      }
+    }
+  }
   function stop() {
     cancelAnimationFrame(frame);
     frame = 0;
@@ -19,7 +45,7 @@ export function createPetMotion(canvas) {
     part = null;
     lastTime = 0;
   }
-  function region(output, box, pivot, angle, weight) {
+  function region(output, box, pivot, angle, weight, allowSource = () => true) {
     const source = original.data,
       dest = output.data,
       size = canvas.width;
@@ -40,6 +66,8 @@ export function createPetMotion(canvas) {
         if (sx < 0 || sy < 0 || sx >= size || sy >= size)
           dest.fill(0, to, to + 4);
         else {
+          // A moving tail pixel must never borrow a pixel from the belly.
+          if (!allowSource(sx, sy)) continue;
           const from = (sy * size + sx) * 4;
           for (let c = 0; c < 4; c++) dest[to + c] = source[from + c];
         }
@@ -91,13 +119,16 @@ export function createPetMotion(canvas) {
           (1 - smooth(97, 131, y)),
       );
     } else {
-      // The base stays anchored beside the body; motion increases toward the tip.
+      // A small, damped tip swish. Blend into the fixed anatomical boundary and
+      // stop flexing before the root instead of rotating the entire right side.
       region(
         output,
-        [196, 122, 256, 220],
-        [208, 207],
-        0.25 * Math.sin(t * Math.PI * 3) * Math.sin(t * Math.PI),
-        (x, y) => smooth(196, 218, x) * (1 - smooth(199, 219, y)),
+        [212, 122, 256, 201],
+        [219, 200],
+        0.13 * Math.sin(t * Math.PI * 3) * Math.sin(t * Math.PI),
+        (x, y) =>
+          smooth(tailEdge[y], tailEdge[y] + 13, x) * (1 - smooth(161, 201, y)),
+        (x, y) => x > tailEdge[y],
       );
     }
     ctx.putImageData(output, 0, 0);
