@@ -10,7 +10,7 @@
     "dev": "node --watch start-local.mjs",
     "start": "node server.mjs",
     "test": "node --test test/*.test.mjs",
-    "check": "node --check server.mjs && node --check start-local.mjs && node --check lib/agent.mjs && node --check lib/community.mjs && node --check public/app.js && node --check public/world.js && node --check public/cat-companion.js && node --check public/intro-flight.js && node --check public/cottage.js && node --check public/pet-state.js && node --check public/pet-motion.js && node --check public/community.js && node --check public/arrival.js"
+    "check": "node --check server.mjs && node --check start-local.mjs && node --check lib/agent.mjs && node --check lib/community.mjs && node --check lib/providers.mjs && node --check lib/model-client.mjs && node --check public/model-settings.js && node --check public/app.js && node --check public/world.js && node --check public/cat-companion.js && node --check public/intro-flight.js && node --check public/cottage.js && node --check public/pet-state.js && node --check public/pet-motion.js && node --check public/community.js && node --check public/arrival.js"
   },
   "dependencies": {
     "lunar-javascript": "1.7.7"

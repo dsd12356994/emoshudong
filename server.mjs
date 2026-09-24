@@ -16,6 +16,8 @@ import {
   birthContext,
 } from "./lib/domain.mjs";
 import { runAgent, catalog, UpstreamError } from "./lib/agent.mjs";
+import { providers, personalConnection } from "./lib/providers.mjs";
+import { completeChat, modelError } from "./lib/model-client.mjs";
 import {
   createCommunity,
   CommunityError,
@@ -39,6 +41,8 @@ export function createApp(options = {}) {
   if (existsSync(quotaFile))
     quota = JSON.parse(readFileSync(quotaFile, "utf8"));
   const inFlight = new Set();
+  const personalRate = new Map();
+  const sharedEnabled = env.SHARED_ACCESS_ENABLED !== "false";
   const upstream =
     options.upstream ?? "https://api.deepseek.com/chat/completions";
   function number(name, fallback, max) {
@@ -62,6 +66,8 @@ export function createApp(options = {}) {
     "/pet-motion.js": "text/javascript; charset=utf-8",
     "/arrival.js": "text/javascript; charset=utf-8",
     "/arrival.css": "text/css; charset=utf-8",
+    "/model-settings.js": "text/javascript; charset=utf-8",
+    "/model-settings.css": "text/css; charset=utf-8",
     "/cottage.css": "text/css; charset=utf-8",
     "/assets/room.webp": "image/webp",
     "/assets/cat-rest.webp": "image/webp",
@@ -86,19 +92,40 @@ export function createApp(options = {}) {
     });
     res.end(JSON.stringify(data));
   }
-  function reserve(ip) {
+  function quotaSnapshot(ip) {
     const day = new Date().toLocaleDateString("en-CA", {
       timeZone: "Asia/Shanghai",
     });
     if (quota.day !== day)
       quota = { day, total: 0, ips: {}, salt: randomBytes(32).toString("hex") };
     const hash = createHmac("sha256", quota.salt).update(ip).digest("hex");
+    return {
+      hash,
+      available: quota.total < globalLimit && (quota.ips[hash] ?? 0) < ipLimit,
+    };
+  }
+  function reserve(ip) {
+    const { hash } = quotaSnapshot(ip);
     if (quota.total >= globalLimit || (quota.ips[hash] ?? 0) >= ipLimit)
       return false;
     quota.total++;
     quota.ips[hash] = (quota.ips[hash] ?? 0) + 1;
     writeFileSync(quotaFile + ".tmp", JSON.stringify(quota), { mode: 0o600 });
     renameSync(quotaFile + ".tmp", quotaFile);
+    return true;
+  }
+  function allowPersonal(ip) {
+    const now = Date.now();
+    for (const [address, entry] of personalRate)
+      if (entry.until <= now) personalRate.delete(address);
+    const entry = personalRate.get(ip) ?? { count: 0, until: now + 60000 };
+    if (
+      entry.count >= 20 ||
+      (!personalRate.has(ip) && personalRate.size >= 2000)
+    )
+      return false;
+    entry.count++;
+    personalRate.set(ip, entry);
     return true;
   }
   const server = http.createServer(async (req, res) => {
@@ -130,12 +157,25 @@ export function createApp(options = {}) {
           : assets.get(url.pathname),
       );
     }
-    if (req.method === "GET" && url.pathname === "/api/status")
+    if (req.method === "GET" && url.pathname === "/api/providers")
+      return send(res, 200, { providers });
+    if (req.method === "GET" && url.pathname === "/api/status") {
+      const available = quotaSnapshot(
+        req.socket.remoteAddress ?? "unknown",
+      ).available;
       return send(res, 200, {
-        ready: !!apiKey,
+        ready: !!apiKey && sharedEnabled && available,
+        sharedReason: !sharedEnabled
+          ? "站主暂时关闭了共享服务，可以使用自己的 API。"
+          : !apiKey
+            ? "共享模型尚未接通，可以先配置自己的 API。"
+            : !available
+              ? "今天的共享对话次数已用完，可以使用自己的 API，或明天再来。"
+              : "共享 DeepSeek 已配置，可尝试寄信；实际余额以服务商账户为准。",
         provider: "DeepSeek",
         privatePreview: true,
       });
+    }
     if (req.method === "GET" && url.pathname === "/api/library")
       return send(res, 200, { cards: catalog });
     if (req.method === "GET" && url.pathname === "/api/community")
@@ -153,7 +193,12 @@ export function createApp(options = {}) {
     ];
     if (
       req.method !== "POST" ||
-      !["/api/chat", "/api/birth", ...communityPaths].includes(url.pathname)
+      ![
+        "/api/chat",
+        "/api/model/test",
+        "/api/birth",
+        ...communityPaths,
+      ].includes(url.pathname)
     )
       return send(res, 404, { error: "没有找到这个页面。" });
     // Browser-only JSON calls, no CORS. Origin compares to the actual request authority.
@@ -185,43 +230,79 @@ export function createApp(options = {}) {
         );
       if (url.pathname === "/api/birth")
         return send(res, 200, { birth: birthContext(body) });
-      const chat = validateChat(body);
-      if (!apiKey)
+      const testing = url.pathname === "/api/model/test";
+      const personal = body && Object.hasOwn(body, "connection");
+      const connection = personal ? personalConnection(body.connection) : null;
+      if (testing && !personal)
+        throw new InputError("连接测试只使用你填写的个人 API。");
+      const chat = testing ? null : validateChat(body);
+      if (!personal && (!apiKey || !sharedEnabled))
         return send(res, 503, {
-          error: "树洞尚未接通模型，请等待站主配置。你的文字没有发送给模型。",
+          code: "shared_unavailable",
+          error:
+            "共享模型尚未接通或已暂停，可以在 API 设置中配置自己的密钥。你的文字没有发送给模型。",
         });
       const ip = req.socket.remoteAddress ?? "unknown";
       if (inFlight.has(ip) || inFlight.size >= 3)
         return send(res, 429, { error: "上一段回应还在生成，请稍等。" });
-      if (!reserve(ip))
-        return send(res, 429, { error: "今天的对话额度已用完，请明天再来。" });
+      if (personal ? !allowPersonal(ip) : !reserve(ip))
+        return send(res, 429, {
+          code: personal ? "personal_rate" : "shared_quota",
+          error: personal
+            ? "个人接口请求太频繁，请一分钟后再试。"
+            : "今天的共享对话次数已用完，可以在 API 设置中使用自己的密钥，或明天再来。",
+        });
       inFlight.add(ip);
       const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), 90000);
+      const timeout = setTimeout(
+        () => controller.abort(),
+        testing ? 25000 : 90000,
+      );
       const cancel = () => {
         if (!res.writableEnded) controller.abort();
       };
       res.on("close", cancel);
       try {
-        const result = await runAgent({
-          chat,
-          system: SYSTEM_PROMPT,
+        const credentials = connection ?? {
+          provider: "deepseek",
           model: env.DEEPSEEK_MODEL || "deepseek-flash",
           apiKey,
           upstream,
+        };
+        if (testing) {
+          const result = await completeChat({
+            ...credentials,
+            messages: [{ role: "user", content: "Reply with OK." }],
+            tokens: 32,
+            signal: controller.signal,
+            fetchImpl: options.providerFetch,
+          });
+          if (!result?.message?.content?.trim()) throw new UpstreamError(502);
+          return send(res, 200, {
+            ok: true,
+            message:
+              "已收到模型回应。此测试可能产生少量费用；工具调用能力仍以具体模型为准。",
+          });
+        }
+        const result = await runAgent({
+          chat,
+          system: SYSTEM_PROMPT,
+          ...credentials,
           tokens,
           signal: controller.signal,
+          fetchImpl: options.providerFetch,
         });
         send(res, 200, result);
       } catch (error) {
         if (!res.destroyed)
           send(res, error instanceof UpstreamError ? 502 : 504, {
-            error:
-              error instanceof UpstreamError
-                ? error.status === 402
-                  ? "模型账户余额不足，请联系站主。"
-                  : "这次没有收到完整回信，请稍后重试。"
-                : "这次回应超时或连接中断了。你可以稍后重试。",
+            code:
+              !personal &&
+              error instanceof UpstreamError &&
+              error.status === 402
+                ? "shared_balance"
+                : "model_error",
+            error: modelError(error, personal),
           });
       } finally {
         clearTimeout(timeout);

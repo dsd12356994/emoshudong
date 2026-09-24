@@ -50,6 +50,11 @@ try {
     await notice(page);
     await page.clock.runFor(150);
     await expect(page.locator("#announcement-dialog")).toBeHidden();
+    await expect(page.locator("#funding-dialog")).toBeVisible();
+    if (action === "escape") await page.keyboard.press("Escape");
+    else if (action === "close")
+      await page.locator('[data-close="funding-dialog"]').first().click();
+    else await page.locator("#funding-continue").click();
     await page.locator("#tree-door").click();
     await page.clock.runFor(300);
     await expect(page.locator("#chat-consent-dialog")).toBeVisible();
@@ -76,6 +81,7 @@ try {
   await notice(paused);
   await paused.clock.runFor(250);
   await expect(paused.locator("#announcement-dialog")).toBeHidden();
+  await paused.locator("#funding-continue").click();
   await paused.locator("#guide-open").click();
   await paused.locator("#announcement-replay").click();
   await notice(paused);
@@ -92,6 +98,13 @@ try {
   await notice(member);
   await expect(member.locator("#cat-dialog")).toBeHidden();
   await member.clock.runFor(5100);
+  await expect(member.locator("#cat-dialog")).toBeHidden();
+  await expect(member.locator("#funding-dialog")).toBeVisible();
+  await member.locator("#funding-api-open").click();
+  await expect(member.locator("#model-dialog")).toBeVisible();
+  await member.locator('[data-close="model-dialog"]').first().click();
+  await expect(member.locator("#cat-dialog")).toBeHidden();
+  await member.locator("#funding-continue").click();
   await expect(member.locator("#cat-dialog")).toBeVisible();
   await member.locator("#cat-form button[type=submit]").click();
   await member.reload();
@@ -118,6 +131,7 @@ try {
   await member.locator("#account-submit").click();
   await notice(member);
   await member.locator("#announcement-close").click();
+  await member.locator("#funding-continue").click();
   await member.locator("#tree-door").click();
   await member.clock.runFor(300);
   await expect(member.locator("#chat-consent-dialog")).toBeVisible();

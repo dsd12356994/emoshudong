@@ -1,0 +1,305 @@
+dialog.funding-dialog {
+  width: min(590px, calc(100vw - 28px));
+  text-align: center;
+  background: #fcf6e9;
+  padding: 26px 34px;
+}
+.funding-dialog .dialog-heading {
+  margin-bottom: 3px;
+}
+.funding-stamp {
+  color: #b47482;
+  font-size: 39px;
+  margin: 4px 0 12px;
+}
+.funding-dialog h2 {
+  font-size: 30px;
+  font-weight: 500;
+  letter-spacing: 2px;
+}
+.funding-dialog .funding-intro {
+  font-size: 15px;
+  line-height: 2;
+  margin: 18px 0;
+}
+.funding-intro strong {
+  color: #a65868;
+  font-size: 22px;
+  font-family: Georgia, serif;
+}
+.funding-details {
+  padding: 14px 18px;
+  text-align: left;
+  background: #efe4d85c;
+  border: 1px dashed #d7c2aa;
+}
+.funding-details p {
+  font-size: 12px;
+  margin: 0;
+  line-height: 1.9;
+}
+.funding-details p + p {
+  margin-top: 8px;
+}
+.funding-dialog blockquote {
+  margin: 20px 0;
+  color: #96656d;
+  font:
+    19px/1.8 "KaiTi",
+    "SimSun",
+    serif;
+}
+.funding-dialog blockquote small {
+  display: block;
+  color: #8b7a67;
+  font:
+    11px/2.4 "Microsoft YaHei",
+    sans-serif;
+}
+.funding-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-top: 18px;
+}
+.funding-actions button {
+  font-size: 12px;
+}
+.funding-footnote {
+  display: block;
+  color: #8e7a68;
+  font-size: 11px;
+  line-height: 1.8;
+  margin-top: 16px;
+}
+dialog.model-dialog {
+  width: min(740px, calc(100vw - 28px));
+  padding: 26px 30px;
+  background: #fcf7ed;
+}
+.model-dialog h2 {
+  font-size: 25px;
+  font-weight: 500;
+  margin-top: 8px;
+}
+.model-dialog .model-intro {
+  font-size: 12px;
+  margin: 14px 0 20px;
+}
+.model-source {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  border: 0;
+  padding: 0;
+  margin: 0 0 12px;
+}
+.model-source label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 13px 15px;
+  border: 1px solid #ddcdb6;
+  background: #fffaf2;
+  cursor: pointer;
+  font-size: 13px;
+}
+.model-source label:has(input:checked) {
+  border-color: #ab747b;
+  background: #f3e4df;
+}
+.model-source small {
+  display: block;
+  font-size: 10px;
+  color: #8e7b65;
+  line-height: 1.8;
+  margin-top: 3px;
+}
+.model-status {
+  font-size: 11px;
+  line-height: 1.7;
+  color: #667557;
+}
+.model-dialog .model-status {
+  margin: 12px 0 16px;
+}
+.model-personal {
+  margin: 0;
+  padding: 18px 0 0;
+  border: 0;
+  border-top: 1px dashed #d8c6ad;
+  min-width: 0;
+}
+.model-personal label {
+  display: block;
+  font-size: 12px;
+}
+.model-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+}
+.model-personal input:not([type="checkbox"]),
+.model-personal select {
+  width: 100%;
+  min-width: 0;
+  border: 1px solid #d8c8b4;
+  background: #fffdf7;
+  color: var(--ink);
+  padding: 10px 12px;
+  margin: 7px 0 13px;
+  border-radius: 3px;
+  font:
+    13px/1.5 "Microsoft YaHei",
+    sans-serif;
+}
+.model-personal select:focus-visible {
+  outline: 3px solid #d38a9b;
+  outline-offset: 2px;
+}
+.model-personal #model-key,
+.model-personal #model-endpoint {
+  font-family: Consolas, monospace;
+  font-size: 12px;
+}
+.model-personal #model-endpoint {
+  background: #f0eade;
+  color: #857462;
+}
+.model-dialog .model-hint {
+  margin: 0 0 10px;
+  font-size: 11px;
+  line-height: 1.8;
+}
+.model-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 9px 18px;
+  margin: 12px 0 17px;
+  align-items: center;
+  font-size: 11px;
+  color: #956a70;
+}
+.model-links button {
+  padding: 0;
+  background: transparent;
+  font-size: 11px;
+  text-decoration: underline;
+}
+.model-personal .model-ack {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  font-size: 11px;
+  line-height: 1.85;
+  margin: 5px 0 16px;
+}
+.model-ack input {
+  flex-shrink: 0;
+  margin-top: 5px;
+}
+#model-test {
+  font-size: 12px;
+  padding: 9px 13px;
+}
+.model-test-note {
+  display: block;
+  margin: 9px 0 0;
+  font-size: 10px;
+  line-height: 1.8;
+  color: #8e7b67;
+}
+.model-dialog .model-feedback {
+  min-height: 1.8em;
+  font-size: 12px;
+  color: #6c7555;
+  margin: 14px 0;
+}
+.model-feedback[data-error="true"] {
+  color: #ac4555;
+}
+.model-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding-top: 15px;
+  border-top: 1px solid #ddcdb6;
+}
+.model-actions > button {
+  font-size: 12px;
+}
+.model-forget {
+  margin-right: auto;
+  padding: 6px 0;
+  color: #966572;
+  background: transparent;
+  text-decoration: underline;
+}
+#letter-api-open {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+#letter-model-label {
+  overflow-wrap: anywhere;
+}
+@media (max-width: 650px) {
+  dialog.funding-dialog,
+  dialog.model-dialog {
+    padding: 22px 19px;
+  }
+  .funding-dialog h2 {
+    font-size: 25px;
+  }
+  .funding-stamp {
+    font-size: 30px;
+    margin-bottom: 8px;
+  }
+  .funding-dialog blockquote {
+    font-size: 17px;
+  }
+  .funding-actions {
+    flex-direction: column;
+  }
+  .model-dialog h2 {
+    font-size: 21px;
+  }
+  .model-source {
+    gap: 8px;
+  }
+  .model-source label {
+    padding: 10px 8px;
+    font-size: 12px;
+    gap: 4px;
+  }
+  .model-grid {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+  .model-actions {
+    flex-wrap: wrap;
+  }
+  .model-forget {
+    flex-basis: 100%;
+    text-align: left;
+  }
+  .model-actions .primary {
+    flex: 1;
+  }
+  .garden-tools {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    max-width: 100%;
+  }
+  .garden-tools button,
+  .garden-tools button:first-child {
+    justify-content: center;
+    min-width: 0;
+    padding: 0 3px;
+    font-size: 10px;
+  }
+  .garden-tools .cat-image {
+    display: none;
+  }
+}

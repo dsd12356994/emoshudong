@@ -85,11 +85,14 @@ export function createArrival({ community, firstVisit }) {
       observer.observe(dialog, { attributes: true, attributeFilter: ["open"] }),
     );
   document.addEventListener("visibilitychange", sync);
-  // Each page entry presents the account choice, then the notice, then (only
-  // on the first visit) the existing coat-color picker. Never stack those steps.
+  // Account → announcement → shared-credit note → first-visit coat picker.
   async function start() {
     await community.promptEntry();
     await show();
+    await new Promise((resolve) => {
+      $("funding-dialog").addEventListener("close", resolve, { once: true });
+      $("funding-dialog").showModal();
+    });
     if (firstVisit) $("cat-dialog").showModal();
   }
   start();

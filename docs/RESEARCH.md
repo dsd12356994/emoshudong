@@ -39,3 +39,5 @@
 技能文件已安装并阅读相关部分；新会话可识别新安装的技能。这些是开发指导，不是运行时心理知识库，也不会随用户聊天发送给模型。当前交互使用普通 DOM、CSS 和浏览器 Canvas 做猫咪换色，还没引入 Phaser 运行时；以后真正做地图移动时再用引擎。
 
 工具调用实现核对了 [DeepSeek 官方 Tool Calls 指南](https://api-docs.deepseek.com/guides/tool_calls/)。第一次允许模型选择工具，应用完成本地执行，第二次用 `tool_choice: none` 收束成回信；不照搬持续循环的 Agent 框架。
+
+多服务商适配继续沿用这个最多两次请求的边界，各家参数及 GLM 的收束方式见 [模型接口记录](MODELS.md)。

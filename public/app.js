@@ -1,3 +1,4 @@
+import { createModelSettings } from "/model-settings.js";
 const $ = (id) => document.getElementById(id);
 let history = [],
   birth = null,
@@ -18,7 +19,36 @@ const dialogs = [
   "account-dialog",
   "guide-dialog",
   "announcement-dialog",
+  "funding-dialog",
+  "model-dialog",
 ];
+const models = createModelSettings({
+  onStatus() {
+    ready = models.ready();
+    if (!busy)
+      status(
+        ready
+          ? "对话只暂存在当前页面，刷新或关闭会清除。"
+          : models.unavailableReason(),
+        !ready,
+      );
+    controls();
+  },
+  onChange() {
+    chatConsent = false;
+    ready = models.ready();
+    const wasWriting = $("letter-dialog").open;
+    if (wasWriting) $("letter-dialog").close();
+    status(
+      ready
+        ? "模型设置已更新。草稿保留，请确认收信方后再寄出。"
+        : models.unavailableReason(),
+      !ready,
+    );
+    controls();
+    if (wasWriting) openLetter();
+  },
+});
 const today = new Date().toLocaleDateString("en-CA");
 for (const id of ["self-date", "other-date"]) $(id).max = today;
 function mode() {
@@ -36,6 +66,7 @@ function controls() {
   $("send").textContent = busy ? "停止等待" : "寄出这封信 ↗";
   $("birth-open").disabled = busy;
   $("new-chat").disabled = busy;
+  models.setBusy(busy);
 }
 // All entry paths share the same explicit, page-local acknowledgement. Merely
 // closing this notice (or the arrival announcement) never grants permission.
@@ -115,11 +146,21 @@ async function sendMessage() {
     const response = await fetch("/api/chat", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ messages, mode: mode(), birth, consent: true }),
+      body: JSON.stringify({
+        messages,
+        mode: mode(),
+        birth,
+        consent: true,
+        connection: models.connection(),
+      }),
       signal: controller.signal,
     });
     const result = await response.json();
-    if (!response.ok) throw new Error(result.error || "暂时没有接通，请重试。");
+    if (!response.ok) {
+      if (result.code?.startsWith("shared_"))
+        models.setShared({ ready: false, sharedReason: result.error });
+      throw new Error(result.error || "暂时没有接通，请重试。");
+    }
     answer.body.classList.remove("pending");
     answer.body.textContent = result.content;
     history = [...messages, { role: "assistant", content: result.content }];
@@ -283,31 +324,12 @@ $("confirm-clear").onclick = () => {
   $("birth-error").textContent = "";
   $("clear-dialog").close();
   status(
-    ready
-      ? "已开启新对话。你可以从任何地方说起。"
-      : "模型尚未接通，配置后刷新即可开始。",
+    ready ? "已开启新对话。你可以从任何地方说起。" : models.unavailableReason(),
     !ready,
   );
   controls();
 };
-async function refreshStatus() {
-  try {
-    const response = await fetch("/api/status");
-    if (!response.ok) throw new Error();
-    const config = await response.json();
-    ready = config.ready;
-    status(
-      ready
-        ? "对话只暂存在当前页面，刷新或关闭会清除。"
-        : "页面已就绪，模型尚未接通。配置密钥后刷新即可聊天。",
-      !ready,
-    );
-  } catch {
-    status("暂时连不上树洞，请刷新页面重试。", true);
-  }
-  controls();
-}
-refreshStatus();
+models.refreshStatus();
 // Optional WebMCP: draft only; never submit private text automatically.
 if (document.modelContext?.registerTool) {
   try {
