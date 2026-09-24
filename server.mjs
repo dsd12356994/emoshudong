@@ -151,6 +151,25 @@ export function createApp(options = {}) {
       "camera=(), microphone=(), geolocation=()",
     );
     const url = new URL(req.url, "http://localhost");
+    // Local recording helper: replay onboarding without deleting accounts/posts
+    // or clearing cookies belonging to other projects on localhost.
+    if (
+      options.liveAssets &&
+      ["127.0.0.1", "::1", "::ffff:127.0.0.1"].includes(
+        req.socket.remoteAddress,
+      ) &&
+      req.method === "GET" &&
+      url.pathname === "/__recording-reset"
+    ) {
+      try {
+        await community.action("/api/account/logout", {}, req, res);
+        res.setHeader("Clear-Site-Data", '"storage"');
+        res.writeHead(303, { Location: "/" });
+        return res.end();
+      } catch {
+        return send(res, 500, { error: "重置未完成，请重试。" });
+      }
+    }
     if (req.method === "GET" && assets.has(url.pathname)) {
       if (url.pathname.startsWith("/assets/"))
         res.setHeader("Cache-Control", "public, max-age=86400");
