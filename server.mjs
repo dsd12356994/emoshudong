@@ -18,6 +18,12 @@ import {
 import { runAgent, catalog, UpstreamError } from "./lib/agent.mjs";
 import { providers, personalConnection } from "./lib/providers.mjs";
 import { completeChat, modelError } from "./lib/model-client.mjs";
+import { clientIp } from "./lib/client-ip.mjs";
+import {
+  createModelLimiter,
+  LimiterError,
+  LimiterAbortedError,
+} from "./lib/model-limiter.mjs";
 import {
   createCommunity,
   CommunityError,
@@ -40,7 +46,6 @@ export function createApp(options = {}) {
   };
   if (existsSync(quotaFile))
     quota = JSON.parse(readFileSync(quotaFile, "utf8"));
-  const inFlight = new Set();
   const personalRate = new Map();
   const sharedEnabled = env.SHARED_ACCESS_ENABLED !== "false";
   const upstream =
@@ -54,6 +59,13 @@ export function createApp(options = {}) {
   const globalLimit = number("DAILY_GLOBAL_LIMIT", 100, 10000);
   const ipLimit = number("DAILY_IP_LIMIT", 30, 1000);
   const tokens = number("MAX_OUTPUT_TOKENS", 800, 2000);
+  const modelLimiter =
+    options.modelLimiter ??
+    createModelLimiter({
+      concurrency: number("MODEL_CONCURRENCY", 2, 8),
+      pendingLimit: number("MODEL_QUEUE_LIMIT", 6, 100),
+      waitMs: number("MODEL_QUEUE_WAIT_MS", 15000, 60000),
+    });
   const types = {
     "/": "text/html; charset=utf-8",
     "/app.js": "text/javascript; charset=utf-8",
@@ -191,9 +203,7 @@ export function createApp(options = {}) {
     if (req.method === "GET" && url.pathname === "/api/providers")
       return send(res, 200, { providers });
     if (req.method === "GET" && url.pathname === "/api/status") {
-      const available = quotaSnapshot(
-        req.socket.remoteAddress ?? "unknown",
-      ).available;
+      const available = quotaSnapshot(clientIp(req)).available;
       return send(res, 200, {
         ready: !!apiKey && sharedEnabled && available,
         sharedReason: !sharedEnabled
@@ -244,6 +254,11 @@ export function createApp(options = {}) {
       return send(res, 403, { error: "请求来源不匹配。" });
     if (!(req.headers["content-type"] ?? "").startsWith("application/json"))
       return send(res, 415, { error: "请求格式必须为JSON。" });
+    const declaredLength = Number(req.headers["content-length"]);
+    if (Number.isFinite(declaredLength) && declaredLength > 90000) {
+      req.resume();
+      return send(res, 413, { error: "内容太长了，请分几次说。" });
+    }
     let bytes = 0,
       chunks = [];
     try {
@@ -273,18 +288,47 @@ export function createApp(options = {}) {
           error:
             "共享模型尚未接通或已暂停，可以在 API 设置中配置自己的密钥。你的文字没有发送给模型。",
         });
-      const ip = req.socket.remoteAddress ?? "unknown";
-      if (inFlight.has(ip) || inFlight.size >= 3)
-        return send(res, 429, { error: "上一段回应还在生成，请稍等。" });
-      if (personal ? !allowPersonal(ip) : !reserve(ip))
+      const ip = clientIp(req);
+      if (personal ? !allowPersonal(ip) : false) {
+        res.setHeader("Retry-After", "60");
         return send(res, 429, {
-          code: personal ? "personal_rate" : "shared_quota",
-          error: personal
-            ? "个人接口请求太频繁，请一分钟后再试。"
-            : "今天的共享对话次数已用完，可以在 API 设置中使用自己的密钥，或明天再来。",
+          code: "personal_rate",
+          error: "个人接口请求太频繁，请一分钟后再试。",
         });
-      inFlight.add(ip);
+      }
       const controller = new AbortController();
+      const cancelQueued = () => controller.abort();
+      res.on("close", cancelQueued);
+      let slot;
+      try {
+        slot = await modelLimiter.acquire(ip, { signal: controller.signal });
+      } catch (error) {
+        res.off("close", cancelQueued);
+        if (error instanceof LimiterAbortedError) return;
+        if (error instanceof LimiterError) {
+          res.setHeader("Retry-After", String(error.retryAfter));
+          return send(res, error.status, {
+            code: error.code,
+            error: error.message,
+          });
+        }
+        throw error;
+      }
+      if (controller.signal.aborted) {
+        slot.release();
+        res.off("close", cancelQueued);
+        return;
+      }
+      if (personal ? false : !reserve(ip)) {
+        slot.release();
+        res.off("close", cancelQueued);
+        res.setHeader("Retry-After", "60");
+        return send(res, 429, {
+          code: "shared_quota",
+          error:
+            "今天的共享对话次数已用完，可以在 API 设置中使用自己的密钥，或明天再来。",
+        });
+      }
       const timeout = setTimeout(
         () => controller.abort(),
         testing ? 25000 : 90000,
@@ -338,7 +382,8 @@ export function createApp(options = {}) {
       } finally {
         clearTimeout(timeout);
         res.off("close", cancel);
-        inFlight.delete(ip);
+        res.off("close", cancelQueued);
+        slot.release();
       }
     } catch (error) {
       if (!res.headersSent && !res.destroyed)
@@ -358,6 +403,7 @@ export function createApp(options = {}) {
         );
     }
   });
+  server.maxHeadersCount = 50;
   server.requestTimeout = 15000;
   server.headersTimeout = 10000;
   server.on("close", () => community.close());

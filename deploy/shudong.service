@@ -18,9 +18,17 @@ PrivateTmp=true
 ProtectHome=true
 ProtectSystem=strict
 ReadWritePaths=/opt/shudong/app/data
+PrivateDevices=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+LockPersonality=true
 UMask=0077
 MemoryMax=350M
 TasksMax=64
+LimitNOFILE=4096
 
 [Install]
 WantedBy=multi-user.target

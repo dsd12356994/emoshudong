@@ -218,6 +218,13 @@ test("accounts, secure sessions, public anonymity, ownership, quotas, restart an
     });
     assert.equal(login.status, 200);
     const rotated = login.headers.get("set-cookie").split(";")[0];
+    const secureLogin = await post(
+      "/api/account/login",
+      { nickname: "桃花测试猫", password: "test-password-123" },
+      "",
+      { "X-Forwarded-Proto": "https" },
+    );
+    assert.match(secureLogin.headers.get("set-cookie"), /; Secure/);
     assert.equal(
       (
         await post(
