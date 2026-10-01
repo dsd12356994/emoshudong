@@ -23,6 +23,8 @@ const dialogs = [
   "funding-dialog",
   "model-dialog",
   "audio-dialog",
+  "zodiac-dialog",
+  "tarot-dialog",
 ];
 const models = createModelSettings({
   onStatus() {
@@ -69,6 +71,32 @@ function controls() {
   $("birth-open").disabled = busy;
   $("new-chat").disabled = busy;
   models.setBusy(busy);
+}
+function renderBirthResult(chart) {
+  const result = $("birth-result");
+  result.replaceChildren();
+  for (const [person, label] of [["self", "我的四柱"], ["other", "对方的四柱"]]) {
+    if (!chart?.[person]) continue;
+    const section = document.createElement("section");
+    section.className = "bazi-chart-card";
+    const title = document.createElement("b");
+    title.textContent = label;
+    const pillars = document.createElement("div");
+    pillars.className = "bazi-pillars";
+    for (const [index, name] of ["年柱", "月柱", "日柱", "时柱"].entries()) {
+      const cell = document.createElement("span");
+      const caption = document.createElement("small");
+      caption.textContent = name;
+      const value = document.createElement("strong");
+      value.textContent = chart[person].pillars[index] || "—";
+      cell.append(caption, value);
+      pillars.append(cell);
+    }
+    const note = document.createElement("p");
+    note.textContent = chart[person].note;
+    section.append(title, pillars, note);
+    result.append(section);
+  }
 }
 // All entry paths share the same explicit, page-local acknowledgement. Merely
 // closing this notice (or the arrival announcement) never grants permission.
@@ -269,7 +297,7 @@ $("birth-open").onclick = () => {
     for (const key of ["date", "time"])
       $(`${who}-${key}`).value = birth?.[who]?.[key] || "";
   $("birth-error").textContent = "";
-  $("birth-result").textContent = "";
+  $("birth-result").replaceChildren();
   $("birth-dialog").showModal();
 };
 $("birth-enabled").onchange = () => {
@@ -302,6 +330,7 @@ $("birth-form").onsubmit = async (e) => {
     const result = await response.json();
     if (!response.ok) throw new Error(result.error);
     birth = draft;
+    renderBirthResult(result.birth);
     $("birth-summary").textContent =
       `生辰参考已开启 · 我：${result.birth.self.pillars.join(" ")}${result.birth.other ? " · 对方：" + result.birth.other.pillars.join(" ") : ""} · 北京时间，未校正真太阳时`;
     $("birth-summary").hidden = false;

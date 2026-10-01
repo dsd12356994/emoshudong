@@ -16,7 +16,9 @@
     <link rel="stylesheet" href="/arrival.css" />
     <link rel="stylesheet" href="/model-settings.css" />
     <link rel="stylesheet" href="/garden-audio.css" />
+    <link rel="stylesheet" href="/divination.css" />
     <script type="module" src="/app.js"></script>
+    <script type="module" src="/divination.js"></script>
     <script type="module" src="/world.js"></script>
   </head>
   <body>
@@ -295,7 +297,12 @@
         </div>
         <button data-close="board-dialog" aria-label="收起留言板">×</button>
       </div>
+      <nav class="board-tabs" aria-label="留言板页面">
+        <button class="is-active" id="board-tab-posts" type="button" aria-selected="true">今日留言</button>
+        <button id="board-tab-letter" type="button" aria-selected="false">一封信</button>
+      </nav>
       <div class="board-whiteboard">
+        <section id="board-page-posts" class="board-page">
         <p class="board-tip">
           写一句今天想留下的话，可以署名，也可以做一只匿名的小猫。留言会公开展示，每天北京时间
           00:00 清空。
@@ -336,6 +343,16 @@
             </button>
           </div>
         </form>
+        </section>
+        <section id="board-page-letter" class="board-page board-letter-page" hidden aria-labelledby="board-letter-title">
+          <div class="board-letter-paper">
+            <span class="overline">桃花小院 · 留给一个人的信</span>
+            <h3 id="board-letter-title">亲爱的 yyh 学姐大人：</h3>
+            <p>我知道我们注定不会有结果，但是我还是很喜欢你。</p>
+            <p class="board-letter-sign">一个 dsa 的笨蛋</p>
+            <small>这是一页静静放在留言板里的信，不会发送给任何人。</small>
+          </div>
+        </section>
       </div>
     </dialog>
     <dialog
@@ -490,6 +507,7 @@
         <select id="audio-track">
           <option value="forget">花下慢坐 · Forget Me Not</option>
           <option value="trifle">小小心事 · A Simple Trifle</option>
+          <option value="street-angel" disabled>Street Angel · 等待确认授权</option>
         </select>
       </section>
       <section class="audio-setting">
@@ -554,6 +572,9 @@
             rel="noopener noreferrer"
             >CC0</a
           >。钢琴与提示音做了音量调整、压缩及淡入淡出；猫叫保留完整叫声与音高，只调低音量并转为单声道。“花下慢坐”“小小心事”是这里的展示名，原曲作者如上。
+        </p>
+        <p>
+          <strong>Street Angel</strong> 目前只在选曲里作为待确认项目显示。检索到的同名作品包括商业发行和需购买授权的音源，尚未找到能确认允许本项目再分发的免费版本；确认具体演唱者或授权后再加入，避免误用版权音乐。
         </p>
       </details>
       <button class="primary full" data-close="audio-dialog">
@@ -899,6 +920,18 @@
               ></label
             >
           </fieldset>
+          <nav class="letter-tools" aria-label="树洞里的小工具">
+            <span class="letter-tools-label">也可以，从另一种角度看</span>
+            <button id="bazi-open" type="button" data-letter-tool="bazi">
+              <span aria-hidden="true">☯</span><b>八字</b><small>四柱参考</small>
+            </button>
+            <button id="zodiac-open" type="button" data-letter-tool="zodiac">
+              <span aria-hidden="true">✦</span><b>星座</b><small>太阳星座</small>
+            </button>
+            <button id="tarot-open" type="button" data-letter-tool="tarot">
+              <span aria-hidden="true">♢</span><b>塔罗</b><small>抽一张牌</small>
+            </button>
+          </nav>
           <div class="letter-side-bottom">
             <button id="letter-audio-open" data-audio-settings>
               ♫ 小院声音 <small>音乐 / 音效</small>
@@ -1048,12 +1081,12 @@
       </p>
       <div id="library-list" class="library-list">正在整理书架…</div>
     </dialog>
-    <dialog id="birth-dialog">
+    <dialog id="birth-dialog" class="divination-dialog bazi-dialog" aria-labelledby="bazi-title">
       <form id="birth-form">
         <div class="dialog-heading">
           <div>
             <span class="eyebrow">另一种聊天视角</span>
-            <h2>生辰参考</h2>
+            <h2 id="bazi-title">八字 · 四柱参考</h2>
           </div>
           <button type="button" data-close="birth-dialog" aria-label="关闭">
             ×
@@ -1062,6 +1095,9 @@
         <p>
           自愿选择的传统文化视角，不用于预测关系结果。只支持按北京时间记录的公历生日，暂不校正出生地真太阳时。
         </p>
+        <div class="bazi-method-note">
+          <span><b>年柱</b>出生年份</span><span><b>月柱</b>节气月</span><span><b>日柱</b>出生日期</span><span><b>时柱</b>出生时刻</span>
+        </div>
         <label class="toggle"
           ><input
             id="birth-enabled"
@@ -1104,6 +1140,34 @@
           ><button type="submit" class="primary">保存本次设置</button>
         </div>
       </form>
+    </dialog>
+    <dialog id="zodiac-dialog" class="divination-dialog zodiac-dialog" aria-labelledby="zodiac-title">
+      <div class="dialog-heading">
+        <div><span class="overline">一小块天空的象征语言</span><h2 id="zodiac-title">星座 · 太阳落在哪里</h2></div>
+        <button data-close="zodiac-dialog" aria-label="关闭星座">×</button>
+      </div>
+      <p class="divination-intro">输入一个公历生日，看看常用西方太阳星座的象征卡片。它适合自我观察和写信灵感，不是性格诊断，也不能预测关系。</p>
+      <form id="zodiac-form" class="divination-form">
+        <label>公历生日<input type="date" id="zodiac-date" min="1900-01-01" required /></label>
+        <button class="primary" type="submit">打开我的星座笺</button>
+      </form>
+      <article id="zodiac-result" class="divination-result" hidden aria-live="polite"></article>
+      <p class="divination-source">日期采用常见热带黄道十二宫分界；天文学与占星文化要分开看。<a href="https://spaceplace.nasa.gov/constellations/sp/" target="_blank" rel="noopener noreferrer">NASA 关于星座与占星的说明 ↗</a></p>
+    </dialog>
+    <dialog id="tarot-dialog" class="divination-dialog tarot-dialog" aria-labelledby="tarot-title">
+      <div class="dialog-heading">
+        <div><span class="overline">给此刻一个小小的象征</span><h2 id="tarot-title">塔罗 · 三张牌的小游戏</h2></div>
+        <button data-close="tarot-dialog" aria-label="关闭塔罗">×</button>
+      </div>
+      <p class="divination-intro">先在心里放一个问题，再选一张牌。牌面只提供联想，不替你决定未来；真正的答案仍在你的感受和行动里。</p>
+      <div class="tarot-table" id="tarot-table" aria-label="选择一张塔罗牌">
+        <button class="tarot-card" data-tarot-index="0" aria-label="选择左边的牌"><span>✿</span></button>
+        <button class="tarot-card" data-tarot-index="1" aria-label="选择中间的牌"><span>✿</span></button>
+        <button class="tarot-card" data-tarot-index="2" aria-label="选择右边的牌"><span>✿</span></button>
+      </div>
+      <article id="tarot-result" class="tarot-result" hidden aria-live="polite"></article>
+      <button id="tarot-again" class="secondary full" type="button">重新洗牌</button>
+      <p class="divination-source">塔罗在这里是创作式的自我反思小游戏，不构成占卜保证、医疗或法律建议。</p>
     </dialog>
     <dialog id="privacy-dialog">
       <div class="dialog-heading">

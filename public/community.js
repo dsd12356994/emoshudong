@@ -158,7 +158,19 @@ export function createCommunityBoard() {
     playSound("paper");
     load();
   }
+  function showPage(page) {
+    const posts = page === "posts";
+    $("board-page-posts").hidden = !posts;
+    $("board-page-letter").hidden = posts;
+    $("board-tab-posts").classList.toggle("is-active", posts);
+    $("board-tab-letter").classList.toggle("is-active", !posts);
+    $("board-tab-posts").setAttribute("aria-selected", String(posts));
+    $("board-tab-letter").setAttribute("aria-selected", String(!posts));
+    if (posts) $("board-message").focus({ preventScroll: true });
+  }
   $("board-open").onclick = $("board-shortcut").onclick = open;
+  $("board-tab-posts").onclick = () => showPage("posts");
+  $("board-tab-letter").onclick = () => showPage("letter");
   $("board-refresh").onclick = load;
   $("board-message").oninput = () => {
     $("board-counter").textContent = `${$("board-message").value.length} / 280`;

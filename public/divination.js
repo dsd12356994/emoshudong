@@ -1,0 +1,150 @@
+import { playSound } from "/garden-audio.js";
+import { openLetter } from "/app.js";
+
+const $ = (id) => document.getElementById(id);
+const today = new Date().toLocaleDateString("en-CA");
+
+const zodiacSigns = [
+  { name: "摩羯座", symbol: "♑", start: [12, 22], end: [1, 19], mood: "把一步一步走稳，也是一种温柔。", prompt: "今天有没有一件事，值得你慢一点完成？" },
+  { name: "水瓶座", symbol: "♒", start: [1, 20], end: [2, 18], mood: "保留自己的角落，也保留好奇心。", prompt: "什么想法，是你希望被好好听见的？" },
+  { name: "双鱼座", symbol: "♓", start: [2, 19], end: [3, 20], mood: "敏感不是负担，它让你看见细微的光。", prompt: "今天哪一点小小的感觉，值得被记下来？" },
+  { name: "白羊座", symbol: "♈", start: [3, 21], end: [4, 19], mood: "先照看心里的火，再决定往哪里走。", prompt: "你现在真正想开始的第一小步是什么？" },
+  { name: "金牛座", symbol: "♉", start: [4, 20], end: [5, 20], mood: "舒服和稳定不是停滞，是给自己留根。", prompt: "什么日常的小事能让你重新落地？" },
+  { name: "双子座", symbol: "♊", start: [5, 21], end: [6, 20], mood: "好奇可以有很多方向，也不必一次走完。", prompt: "哪句话，你希望有人认真回答？" },
+  { name: "巨蟹座", symbol: "♋", start: [6, 21], end: [7, 22], mood: "照顾别人以前，也可以先听听自己的需要。", prompt: "今天什么会让你感觉更像回到家？" },
+  { name: "狮子座", symbol: "♌", start: [7, 23], end: [8, 22], mood: "被看见很好，安静地发光也很好。", prompt: "你想为自己承认哪一个小小的做得不错？" },
+  { name: "处女座", symbol: "♍", start: [8, 23], end: [9, 22], mood: "不必把一切都整理好，留一点空白也可以。", prompt: "哪件事可以只做到足够，而不是完美？" },
+  { name: "天秤座", symbol: "♎", start: [9, 23], end: [10, 22], mood: "关系需要平衡，也需要你自己的位置。", prompt: "一段舒服的关系会让你感到什么？" },
+  { name: "天蝎座", symbol: "♏", start: [10, 23], end: [11, 21], mood: "深情可以有边界，沉默也不必替你承担一切。", prompt: "你愿意把哪一点真实留给自己？" },
+  { name: "射手座", symbol: "♐", start: [11, 22], end: [12, 21], mood: "远方很大，今天也可以只走到窗边。", prompt: "现在最想给生活打开哪一扇小窗？" },
+];
+
+const tarotDeck = [
+  ["愚者", "〇", "把未知当作一条还没写完的路。今天不必保证结果，只要确认下一步是你愿意走的。"],
+  ["魔术师", "✦", "你手边已经有一些可以使用的东西。把注意力从缺少什么，轻轻移回你能做什么。"],
+  ["女祭司", "☾", "答案可能还在沉默里发芽。先让直觉和事实并排坐一会儿，不急着替它们选边。"],
+  ["皇后", "❀", "给自己一处能生长的空间。被照料不是软弱，舒服和丰盛也值得被认真对待。"],
+  ["皇帝", "◇", "清晰的边界能让温柔留下来。想一想，什么是你愿意承担的，什么应该交还给对方。"],
+  ["恋人", "♡", "选择不是寻找命定答案，而是诚实地看见自己在乎什么，并尊重彼此的自由。"],
+  ["战车", "→", "方向比速度更重要。把力气收拢到一件小事上，走得慢一点也算在前进。"],
+  ["力量", "♧", "真正的力量不一定很响。你可以一边害怕，一边用不伤害自己的方式继续照顾自己。"],
+  ["隐者", "☼", "暂时退到安静处并不等于逃避。独处一会儿，或许能让自己的声音重新变清楚。"],
+  ["星星", "✧", "希望不需要立刻变成计划。先留住一点微光，等你有力气时再决定它照向哪里。"],
+  ["月亮", "☽", "模糊会放大猜测。把已知、未知和担心分开写下，夜就不会替你完成所有解释。"],
+  ["太阳", "☀", "允许自己享受简单的好事。快乐不需要先证明自己已经足够辛苦。"],
+  ["世界", "◎", "一个阶段正在收尾。告别不抹去经历，它只是把故事交还给更大的生活。"],
+];
+
+function zodiacFor(value) {
+  const [month, day] = value.split("-").slice(1).map(Number);
+  return zodiacSigns.find((sign) => {
+    const afterStart = month === sign.start[0]
+      ? day >= sign.start[1]
+      : month > sign.start[0] || (sign.start[0] === 12 && month < 2);
+    const beforeEnd = month === sign.end[0]
+      ? day <= sign.end[1]
+      : month < sign.end[0] || (sign.end[0] === 1 && month > 11);
+    return afterStart && beforeEnd;
+  }) ?? zodiacSigns[0];
+}
+
+function renderZodiac(sign, date) {
+  const result = $("zodiac-result");
+  result.replaceChildren();
+  const mark = document.createElement("span");
+  mark.className = "divination-mark";
+  mark.textContent = sign.symbol;
+  const heading = document.createElement("h3");
+  heading.textContent = `${sign.name} · ${date}`;
+  const mood = document.createElement("p");
+  mood.textContent = sign.mood;
+  const prompt = document.createElement("p");
+  prompt.className = "divination-prompt";
+  prompt.textContent = sign.prompt;
+  result.append(mark, heading, mood, prompt);
+  result.hidden = false;
+}
+
+function drawTarot() {
+  const picked = new Set();
+  while (picked.size < 3) picked.add(Math.floor(Math.random() * tarotDeck.length));
+  document.querySelectorAll(".tarot-card").forEach((button, index) => {
+    button.dataset.card = String([...picked][index]);
+    button.disabled = false;
+    button.classList.remove("is-revealed", "is-muted");
+    button.replaceChildren(Object.assign(document.createElement("span"), { textContent: "✿" }));
+  });
+  $("tarot-result").hidden = true;
+  $("tarot-result").replaceChildren();
+}
+
+function revealTarot(button) {
+  if (button.classList.contains("is-revealed")) return;
+  const card = tarotDeck[Number(button.dataset.card)];
+  document.querySelectorAll(".tarot-card").forEach((other) => {
+    other.disabled = true;
+    if (other !== button) other.classList.add("is-muted");
+  });
+  button.classList.add("is-revealed");
+  button.replaceChildren(Object.assign(document.createElement("span"), { textContent: card[1] }));
+  const result = $("tarot-result");
+  result.replaceChildren();
+  const overline = document.createElement("span");
+  overline.className = "overline";
+  overline.textContent = "你抽到的是";
+  const title = document.createElement("h3");
+  title.textContent = `${card[1]} ${card[0]}`;
+  const copy = document.createElement("p");
+  copy.textContent = card[2];
+  result.append(overline, title, copy);
+  result.hidden = false;
+  playSound("success");
+}
+
+let returnToLetter = false;
+function closeLetterForTool() {
+  returnToLetter = $("letter-dialog").open;
+  if (returnToLetter) $("letter-dialog").close();
+}
+function returnToLetterIfNeeded() {
+  if (!returnToLetter) return;
+  returnToLetter = false;
+  openLetter();
+}
+
+$("bazi-open").onclick = () => {
+  closeLetterForTool();
+  setTimeout(() => $("birth-open").click(), 0);
+};
+$("birth-dialog").addEventListener("close", returnToLetterIfNeeded);
+$("zodiac-date").max = today;
+$("zodiac-form").onsubmit = (event) => {
+  event.preventDefault();
+  const date = $("zodiac-date").value;
+  if (!date) return;
+  renderZodiac(zodiacFor(date), date);
+  playSound("paper");
+};
+$("zodiac-open").onclick = () => {
+  if (!$('zodiac-date').value && $("self-date").value) $("zodiac-date").value = $("self-date").value;
+  closeLetterForTool();
+  setTimeout(() => $("zodiac-dialog").showModal(), 0);
+};
+$("zodiac-dialog").addEventListener("close", returnToLetterIfNeeded);
+$("tarot-open").onclick = () => {
+  drawTarot();
+  closeLetterForTool();
+  setTimeout(() => {
+    $("tarot-dialog").showModal();
+    playSound("paper");
+  }, 0);
+};
+$("tarot-dialog").addEventListener("close", returnToLetterIfNeeded);
+document.querySelectorAll(".tarot-card").forEach((button) => {
+  button.onclick = () => revealTarot(button);
+});
+$("tarot-again").onclick = () => {
+  drawTarot();
+  playSound("tap");
+};
+drawTarot();

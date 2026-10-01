@@ -70,6 +70,8 @@ export function createApp(options = {}) {
     "/model-settings.css": "text/css; charset=utf-8",
     "/garden-audio.js": "text/javascript; charset=utf-8",
     "/garden-audio.css": "text/css; charset=utf-8",
+    "/divination.js": "text/javascript; charset=utf-8",
+    "/divination.css": "text/css; charset=utf-8",
     "/assets/audio/forget-me-not.mp3": "audio/mpeg",
     "/assets/audio/a-simple-trifle.mp3": "audio/mpeg",
     "/assets/audio/cat-meow.wav": "audio/wav",
