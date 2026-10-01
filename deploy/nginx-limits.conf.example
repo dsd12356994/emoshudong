@@ -1,0 +1,14 @@
+# Include this file inside nginx's http{} context (for example,
+# /etc/nginx/conf.d/shudong-limits.conf).
+limit_req_zone $binary_remote_addr zone=shudong_api:10m rate=5r/s;
+limit_conn_zone $binary_remote_addr zone=shudong_conn:10m;
+limit_req_status 429;
+
+# In the HTTPS server block, apply the zones to the API location:
+# location ^~ /api/ {
+#     limit_req zone=shudong_api burst=10 nodelay;
+#     limit_conn shudong_conn 20;
+#     client_max_body_size 96k;
+#     client_body_timeout 10s;
+#     proxy_read_timeout 110s;
+# }

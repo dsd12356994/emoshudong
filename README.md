@@ -78,6 +78,8 @@ powershell -ExecutionPolicy Bypass -File deploy/start-preview.ps1
 
 生产服务不会提供本地录制用的 `/__recording-reset` 入口。公网实例通过 Nginx 提供 HTTPS，Node 只监听 `127.0.0.1:3080`。应用只在来自本机反向代理时读取经过校验的 `X-Real-IP`/`X-Forwarded-For`，用于按访客限流；直连请求不会被这些头伪造。
 
+Nginx 限流区的可迁移示例在 `deploy/nginx-limits.conf.example`；证书路径和域名应按实际实例填写，不能把证书私钥提交到仓库。
+
 模型请求使用进程内有限队列：默认同时最多处理 2 个模型请求，另排队 6 个请求，单个访客最多占用 1 个处理中和 1 个等待位，等待超过 15 秒或队列满会返回 429 并提示稍后重试。Nginx 还对所有 `/api/` 请求设置了每 IP 速率、连接数、请求体大小和超时上限；HTTPS 开启 HSTS 与禁止 iframe 嵌入。队列不落盘，重启会清空等待中的请求。
 
 ## 测试
