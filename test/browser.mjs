@@ -77,11 +77,13 @@ try {
   await page.locator("#birth-open").click();
   await page.locator("#birth-enabled").check();
   await page.locator("#self-date").fill("2000-01-01");
-  await page.getByRole("button", { name: "保存本次设置" }).click();
-  await page.locator("#birth-dialog").waitFor({ state: "hidden" });
+  await page.getByRole("button", { name: /保存本次设置|查看排盘与合盘/ }).click();
+  await page.locator("#birth-dialog").waitFor({ state: "visible" });
+  await page.locator("#birth-result").waitFor({ state: "visible" });
   assert.ok(
     (await page.locator("#birth-summary").textContent()).includes("时辰未知"),
   );
+  await page.locator('[data-close="birth-dialog"]').first().click();
   await page.locator("#new-chat").click();
   await page.locator("#confirm-clear").click();
   assert.equal(await page.locator("#messages").textContent(), "");

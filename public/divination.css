@@ -183,6 +183,126 @@ dialog.divination-dialog {
 .divination-source a {
   color: #956672;
 }
+.zodiac-date-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  width: 100%;
+}
+.zodiac-date-grid label {
+  color: #8d7964;
+  font-size: 11px;
+}
+.zodiac-date-grid input {
+  display: block;
+  width: 100%;
+  margin-top: 7px;
+  padding: 11px 9px;
+  border: 1px solid #d0bfa4;
+  background: #fffdf5;
+  color: #675b4a;
+}
+.compatibility-result {
+  padding: 2px 0;
+}
+.compatibility-heading {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 14px;
+}
+.compatibility-heading h3 {
+  margin: 0;
+  font-size: 20px;
+}
+.compatibility-score {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: baseline;
+  color: #a66370;
+  font-family: "KaiTi", "SimSun", serif;
+}
+.compatibility-score strong {
+  font-size: 38px;
+  font-weight: 500;
+  line-height: 1;
+}
+.compatibility-score small {
+  color: #9d806f;
+  font-size: 13px;
+}
+.compatibility-note {
+  color: #a0806b !important;
+  font-size: 11px !important;
+}
+.compatibility-analysis {
+  color: #6f5e4c;
+}
+.compatibility-details {
+  display: grid;
+  gap: 7px;
+  margin-top: 14px;
+}
+.compatibility-details > div {
+  display: grid;
+  grid-template-columns: minmax(120px, .65fr) 1fr;
+  gap: 10px;
+  padding: 8px 10px;
+  border-left: 2px solid #c48e8e;
+  background: #fffaf0;
+  font-size: 11px;
+}
+.compatibility-details b {
+  color: #8e5964;
+  font-weight: 500;
+}
+.compatibility-details span {
+  color: #987f6b;
+}
+.compatibility-result details {
+  margin-top: 15px;
+  color: #987f6b;
+  font-size: 11px;
+}
+.compatibility-result details summary {
+  color: #8e5964;
+  cursor: pointer;
+}
+.compatibility-result details p {
+  font-size: 11px;
+}
+.zodiac-pair-cards {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 9px;
+  margin: 13px 0 5px;
+}
+.zodiac-sign-card {
+  padding: 12px;
+  border: 1px solid #e1ceb0;
+  background: #fffaf0;
+}
+.zodiac-sign-card .divination-mark {
+  display: inline-block;
+  margin-right: 5px;
+  vertical-align: middle;
+  font-size: 25px;
+}
+.zodiac-sign-card b {
+  color: #8d5966;
+  font-size: 12px;
+  font-weight: 500;
+}
+.zodiac-sign-card small {
+  display: block;
+  margin-top: 5px;
+  color: #aa8d73;
+  font-size: 10px;
+}
+.zodiac-sign-card p {
+  margin-bottom: 0 !important;
+  font-size: 11px !important;
+}
 .tarot-table {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -286,6 +406,11 @@ dialog.divination-dialog {
   dialog.divination-dialog { padding: 22px 20px; }
   .divination-form { align-items: stretch; flex-direction: column; }
   .divination-form .primary { width: 100%; }
+  .zodiac-date-grid { grid-template-columns: 1fr; gap: 8px; }
+  .compatibility-heading { align-items: start; flex-direction: column; gap: 5px; }
+  .compatibility-score strong { font-size: 32px; }
+  .compatibility-details > div { grid-template-columns: 1fr; gap: 3px; }
+  .zodiac-pair-cards { grid-template-columns: 1fr; }
   .tarot-card { min-height: 145px; }
   .board-letter-paper { padding: 28px 22px 22px; }
   .board-letter-paper h3 { margin-top: 28px; font-size: 19px; }

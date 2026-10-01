@@ -3,6 +3,9 @@ import { playSound } from "/garden-audio.js";
 const $ = (id) => document.getElementById(id);
 let history = [],
   birth = null,
+  birthDraft = null,
+  birthChart = null,
+  birthRevision = 0,
   ready = false,
   busy = false,
   chatConsent = false,
@@ -75,6 +78,51 @@ function controls() {
 function renderBirthResult(chart) {
   const result = $("birth-result");
   result.replaceChildren();
+  if (chart?.compatibility) {
+    const match = chart.compatibility;
+    const section = document.createElement("section");
+    section.className = "compatibility-result";
+    const heading = document.createElement("div");
+    heading.className = "compatibility-heading";
+    const title = document.createElement("h3");
+    title.textContent = match.label;
+    const score = document.createElement("div");
+    score.className = "compatibility-score";
+    const number = document.createElement("strong");
+    number.textContent = match.score;
+    const scale = document.createElement("small");
+    scale.textContent = " / 100";
+    score.append(number, scale);
+    heading.append(title, score);
+    const disclaimer = document.createElement("p");
+    disclaimer.className = "compatibility-note";
+    disclaimer.textContent = match.disclaimer;
+    const analysis = document.createElement("p");
+    analysis.className = "compatibility-analysis";
+    analysis.textContent = [match.summary, ...match.paragraphs].join(" ");
+    const dimensions = document.createElement("div");
+    dimensions.className = "compatibility-details";
+    for (const item of match.dimensions) {
+      const dimension = document.createElement("div");
+      const label = document.createElement("b");
+      label.textContent = `${item.label} · ${item.score} / 100`;
+      const detail = document.createElement("span");
+      detail.textContent = item.detail;
+      dimension.append(label, detail);
+      dimensions.append(dimension);
+    }
+    const coverage = document.createElement("p");
+    coverage.className = "compatibility-note";
+    coverage.textContent = match.coverage;
+    const method = document.createElement("details");
+    const caption = document.createElement("summary");
+    caption.textContent = "这份匹配指数怎么算？";
+    const explanation = document.createElement("p");
+    explanation.textContent = match.method;
+    method.append(caption, explanation);
+    section.append(heading, disclaimer, analysis, dimensions, coverage, method);
+    result.append(section);
+  }
   for (const [person, label] of [["self", "我的四柱"], ["other", "对方的四柱"]]) {
     if (!chart?.[person]) continue;
     const section = document.createElement("section");
@@ -97,6 +145,13 @@ function renderBirthResult(chart) {
     section.append(title, pillars, note);
     result.append(section);
   }
+}
+function syncBirthReference() {
+  birth = $("birth-enabled").checked && birthChart ? birthDraft : null;
+  $("birth-summary").hidden = !birth;
+  $("birth-summary").textContent = birth
+    ? `生辰参考已开启 · 我：${birthChart.self.pillars.join(" ")}${birthChart.other ? " · 对方：" + birthChart.other.pillars.join(" ") : ""} · 北京时间，未校正真太阳时`
+    : "";
 }
 // All entry paths share the same explicit, page-local acknowledgement. Merely
 // closing this notice (or the arrival announcement) never grants permission.
@@ -292,35 +347,46 @@ dialogs.forEach((id) =>
 );
 $("birth-open").onclick = () => {
   $("birth-enabled").checked = !!birth;
-  $("birth-fields").disabled = !birth;
+  $("birth-fields").disabled = false;
   for (const who of ["self", "other"])
     for (const key of ["date", "time"])
-      $(`${who}-${key}`).value = birth?.[who]?.[key] || "";
+      $(`${who}-${key}`).value = birthDraft?.[who]?.[key] || "";
   $("birth-error").textContent = "";
-  $("birth-result").replaceChildren();
+  renderBirthResult(birthChart);
   $("birth-dialog").showModal();
 };
-$("birth-enabled").onchange = () => {
-  $("birth-fields").disabled = !$("birth-enabled").checked;
-};
+$("birth-enabled").onchange = syncBirthReference;
+for (const who of ["self", "other"])
+  for (const key of ["date", "time"])
+    $(`${who}-${key}`).addEventListener("input", () => {
+      birthRevision += 1;
+      birthDraft = {
+        self: { date: $("self-date").value, time: $("self-time").value },
+        other: { date: $("other-date").value, time: $("other-time").value },
+      };
+      birthChart = null;
+      $("birth-result").replaceChildren();
+      $("birth-error").textContent = "";
+      syncBirthReference();
+    });
 $("birth-form").onsubmit = async (e) => {
   e.preventDefault();
-  const button = e.submitter;
-  if (!$("birth-enabled").checked) {
-    birth = null;
-    $("birth-summary").hidden = true;
-    $("birth-dialog").close();
-    return;
-  }
+  const button = e.submitter || $("birth-form").querySelector('[type="submit"]');
+  if (button.disabled) return;
   const draft = {
     self: { date: $("self-date").value, time: $("self-time").value },
     other: { date: $("other-date").value, time: $("other-time").value },
   };
   if (!draft.self.date) {
-    $("birth-error").textContent = "请填写自己的公历生日，或关闭生辰参考。";
+    $("birth-error").textContent = "请填写自己的公历生日；对方生日不清楚时可以先只看自己的四柱。";
     return;
   }
+  const revision = birthRevision;
+  const buttonText = button.textContent;
+  $("birth-error").textContent = "";
   button.disabled = true;
+  button.textContent = draft.other.date ? "正在合盘…" : "正在排盘…";
+  $("birth-result").setAttribute("aria-busy", "true");
   try {
     const response = await fetch("/api/birth", {
       method: "POST",
@@ -328,18 +394,20 @@ $("birth-form").onsubmit = async (e) => {
       body: JSON.stringify(draft),
     });
     const result = await response.json();
+    if (revision !== birthRevision) return;
     if (!response.ok) throw new Error(result.error);
-    birth = draft;
-    renderBirthResult(result.birth);
-    $("birth-summary").textContent =
-      `生辰参考已开启 · 我：${result.birth.self.pillars.join(" ")}${result.birth.other ? " · 对方：" + result.birth.other.pillars.join(" ") : ""} · 北京时间，未校正真太阳时`;
-    $("birth-summary").hidden = false;
-    $("birth-dialog").close();
+    birthDraft = draft;
+    birthChart = result.birth;
+    renderBirthResult(birthChart);
+    syncBirthReference();
+    $("birth-result").scrollIntoView({ block: "start", behavior: "smooth" });
   } catch (error) {
-    $("birth-error").textContent =
-      error.message || "暂时无法计算，请稍后再试。";
+    if (revision === birthRevision)
+      $("birth-error").textContent = error.message || "暂时无法计算，请稍后再试。";
   } finally {
     button.disabled = false;
+    button.textContent = buttonText;
+    $("birth-result").removeAttribute("aria-busy");
   }
 };
 $("new-chat").onclick = () => $("clear-dialog").showModal();
@@ -350,6 +418,9 @@ $("letter-home").onclick = (e) => {
 $("confirm-clear").onclick = () => {
   history = [];
   birth = null;
+  birthDraft = null;
+  birthChart = null;
+  birthRevision += 1;
   $("messages").replaceChildren();
   $("welcome").hidden = false;
   $("message").value = "";

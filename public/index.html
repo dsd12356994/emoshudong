@@ -1102,7 +1102,7 @@
           ><input
             id="birth-enabled"
             type="checkbox"
-          />在聊天中加入生辰参考</label
+          />把已算出的生辰参考加入聊天</label
         >
         <fieldset id="birth-fields" disabled>
           <legend class="sr-only">出生资料</legend>
@@ -1137,7 +1137,7 @@
         <div class="dialog-actions">
           <button type="button" data-close="birth-dialog" class="secondary">
             取消</button
-          ><button type="submit" class="primary">保存本次设置</button>
+          ><button type="submit" class="primary">查看排盘与合盘</button>
         </div>
       </form>
     </dialog>
@@ -1146,10 +1146,13 @@
         <div><span class="overline">一小块天空的象征语言</span><h2 id="zodiac-title">星座 · 太阳落在哪里</h2></div>
         <button data-close="zodiac-dialog" aria-label="关闭星座">×</button>
       </div>
-      <p class="divination-intro">输入一个公历生日，看看常用西方太阳星座的象征卡片。它适合自我观察和写信灵感，不是性格诊断，也不能预测关系。</p>
+      <p class="divination-intro">填入两个人的公历生日，看看常用西方太阳星座如何并排成一张小笺。它适合自我观察和写信灵感，不是性格诊断，也不能预测关系。</p>
       <form id="zodiac-form" class="divination-form">
-        <label>公历生日<input type="date" id="zodiac-date" min="1900-01-01" required /></label>
-        <button class="primary" type="submit">打开我的星座笺</button>
+        <div class="zodiac-date-grid">
+          <label>我的公历生日<input type="date" id="zodiac-date" min="1900-01-01" required /></label>
+          <label>对方的公历生日<input type="date" id="zodiac-other-date" min="1900-01-01" required /></label>
+        </div>
+        <button class="primary" type="submit">查看两人的星座笺</button>
       </form>
       <article id="zodiac-result" class="divination-result" hidden aria-live="polite"></article>
       <p class="divination-source">日期采用常见热带黄道十二宫分界；天文学与占星文化要分开看。<a href="https://spaceplace.nasa.gov/constellations/sp/" target="_blank" rel="noopener noreferrer">NASA 关于星座与占星的说明 ↗</a></p>
