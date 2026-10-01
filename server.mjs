@@ -187,6 +187,8 @@ export function createApp(options = {}) {
     if (req.method === "GET" && assets.has(url.pathname)) {
       if (url.pathname.startsWith("/assets/"))
         res.setHeader("Cache-Control", "public, max-age=86400");
+      else if (url.pathname !== "/")
+        res.setHeader("Cache-Control", "public, max-age=300");
       res.writeHead(200, { "Content-Type": types[url.pathname] });
       return res.end(
         options.liveAssets
