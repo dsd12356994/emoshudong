@@ -6,6 +6,7 @@ import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import {createApp} from '../server.mjs';
 import {birthContext,validateChat} from '../lib/domain.mjs';
+import {createModelLimiter} from '../lib/model-limiter.mjs';
 const valid={consent:true,mode:'listen',messages:[{role:'user',content:'这是私密测试文本'}]};
 const listen=server=>new Promise(resolve=>server.listen(0,'127.0.0.1',()=>resolve(`http://127.0.0.1:${server.address().port}`)));
 const close=server=>new Promise(resolve=>{server.close(resolve);server.closeAllConnections();});
@@ -49,4 +50,37 @@ test('unconfigured backend never fabricates replies',async()=>{
   const dir=mkdtempSync(join(tmpdir(),'treehole-test-'));const server=createApp({env:{},dataDir:dir});const url=await listen(server);
   try{assert.equal((await (await fetch(url+'/api/status')).json()).ready,false);assert.equal((await fetch(url+'/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(valid)})).status,503);}
   finally{await close(server);rmSync(dir,{recursive:true,force:true});}
+});
+
+test('model requests use the bounded queue instead of piling onto the upstream', async () => {
+  const dir = mkdtempSync(join(tmpdir(), 'treehole-queue-test-'));
+  let active = 0;
+  let peak = 0;
+  const app = createApp({
+    env: { DEEPSEEK_API_KEY: 'queue-test-key' },
+    dataDir: dir,
+    modelLimiter: createModelLimiter({ concurrency: 1, pendingLimit: 1, waitMs: 1000 }),
+    providerFetch: async () => {
+      active++;
+      peak = Math.max(peak, active);
+      await new Promise((resolve) => setTimeout(resolve, 60));
+      active--;
+      return Response.json({ choices: [{ message: { content: '排队回应' }, finish_reason: 'stop' }] });
+    },
+  });
+  const url = await listen(app);
+  try {
+    const post = () => fetch(url + '/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(valid),
+    });
+    const responses = await Promise.all([post(), post(), post()]);
+    assert.deepEqual(responses.map((response) => response.status).sort(), [200, 200, 429]);
+    assert.equal(peak, 1);
+    assert.equal(responses.find((response) => response.status === 429).headers.get('retry-after'), '5');
+  } finally {
+    await close(app);
+    rmSync(dir, { recursive: true, force: true });
+  }
 });
